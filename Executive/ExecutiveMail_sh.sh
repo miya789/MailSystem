@@ -35,26 +35,46 @@ echo "" >> ${LOG_FILE}
 
 # 曜日の判定
 
-(
-  plusdate=0
-  day_of_week_num=`date "+%u"`
-  Sat=1
-  Sun=2
-  date=`date "+%Y%m%d"`
-  is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
+plusdate=0
+day_of_week_num=`date "+%u"`
+Sat=1
+Sun=2
+date=`date "+%Y%m%d"`
+is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
 
-  echo "Today:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
+echo "Today:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
+echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
+
+if [ $day_of_week_num -eq $Sat ] || [ $day_of_week_num -eq $Sun ] || [ "${is_holiday}" != "" ]; then
+  echo "Today is a holiday, so finished." | sed "s/^/  /g" >> ${LOG_FILE}
+  exit 0
+else
+  echo "Today is not a holiday, so continuing..." | sed "s/^/  /g" >> ${LOG_FILE}
+  echo "" >> ${LOG_FILE}
+
+  # 次の平日の調査
+  echo "Searching the next weekday..." | sed "s/^/  /g" >> ${LOG_FILE}
+  plusdate=$(expr $plusdate + 1)
+  # day_of_week_num >>>
+  if [ "${OSTYPE}" = "FreeBSD" ]; then
+    day_of_week_num=`date -v+${plusdate}d "+%u"`
+  elif [ "${OSTYPE}" = "linux-gnu" ]; then
+    day_of_week_num=`date -d "${plusdate} day" +%u`
+  fi
+  # day_of_week_num <<<
+  # date >>>
+  if [ "${OSTYPE}" = "FreeBSD" ]; then
+    date=`date -v+${plusdate}d "+%Y%m%d"`
+  elif [ "${OSTYPE}" = "linux-gnu" ]; then
+    date=`date -d "${plusdate} days" +%Y%m%d`
+  fi
+  # date <<<
+  is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
+  echo "${plusdate} day later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
   echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
 
-  if [ $day_of_week_num -eq $Sat ] || [ $day_of_week_num -eq $Sun ] || [ "${is_holiday}" != "" ]; then
-    echo "Today is a holiday, so finished." | sed "s/^/  /g" >> ${LOG_FILE}
-    exit 0
-  else
-    echo "Today is not a holiday, so continuing..." | sed "s/^/  /g" >> ${LOG_FILE}
-    echo "" >> ${LOG_FILE}
-
-    # 次の平日の調査
-    echo "Searching the next weekday..." | sed "s/^/  /g" >> ${LOG_FILE}
+  # 次の平日に辿り着く迄逃れられない！
+  while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${holidayflg}" != ""  ]; do
     plusdate=$(expr $plusdate + 1)
     # day_of_week_num >>>
     if [ "${OSTYPE}" = "FreeBSD" ]; then
@@ -71,32 +91,10 @@ echo "" >> ${LOG_FILE}
     fi
     # date <<<
     is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
-    echo "${plusdate} day later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
+    echo "${plusdate} days later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
     echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
-
-    # 次の平日に辿り着く迄逃れられない！
-    while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${holidayflg}" != ""  ]; do
-      plusdate=$(expr $plusdate + 1)
-      # day_of_week_num >>>
-      if [ "${OSTYPE}" = "FreeBSD" ]; then
-        day_of_week_num=`date -v+${plusdate}d "+%u"`
-      elif [ "${OSTYPE}" = "linux-gnu" ]; then
-        day_of_week_num=`date -d "${plusdate} day" +%u`
-      fi
-      # day_of_week_num <<<
-      # date >>>
-      if [ "${OSTYPE}" = "FreeBSD" ]; then
-        date=`date -v+${plusdate}d "+%Y%m%d"`
-      elif [ "${OSTYPE}" = "linux-gnu" ]; then
-        date=`date -d "${plusdate} days" +%Y%m%d`
-      fi
-      # date <<<
-      is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
-      echo "${plusdate} days later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
-      echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
-    done
-  fi
-)
+  done
+fi
 
 echo "Finished!" | sed "s/^/  /g" >> ${LOG_FILE}
 echo "The next weekday:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
@@ -119,7 +117,6 @@ while [ $i -le $COUNT ]; do
   line=`cat $SCHEDULE_FILE | head -$i | tail -1`
   echo "[${i}/${COUNT}]: ${line}" | sed "s/^/    /g" >> ${LOG_FILE}
   DATE=`echo "$line" | cut -d' ' -f1`
-  echo "$DATE  $NEXT_WEEKDAY"
   if [ $DATE = $NEXT_WEEKDAY ]; then
     MEETING_TIME=`echo "$line" | cut -d' ' -f2`
     MEETING_PLACE=`echo "$line" | cut -d' ' -f3`
@@ -136,8 +133,8 @@ if [ $should_send_mail -eq 0 ]; then
 fi
 
 # 文面作成用変数設定
-MEETING_PLACE_EN=$place
-MEETING_PLACE_JP=$place
+MEETING_PLACE_EN=$MEETING_PLACE
+MEETING_PLACE_JP=$MEETING_PLACE
 
 case $MEETING_PLACE in
 	113 )
