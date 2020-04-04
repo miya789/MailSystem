@@ -34,7 +34,6 @@ echo "Holiday File Regenerated." | sed "s/^/  /g" >> ${LOG_FILE}
 echo "" >> ${LOG_FILE}
 
 # 曜日の判定
-
 plusdate=0
 day_of_week_num=`date "+%u"`
 Sat=1
@@ -100,7 +99,6 @@ echo "Finished!" | sed "s/^/  /g" >> ${LOG_FILE}
 echo "The next weekday:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
 echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
 
-echo $OSTYPE
 if [ "${OSTYPE}" = "FreeBSD" ]; then
   NEXT_WEEKDAY=`date -v+${plusdate}d "+%m/%d"`
 elif [ "${OSTYPE}" = "linux-gnu" ]; then
