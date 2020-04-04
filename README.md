@@ -58,8 +58,8 @@
 ## 使用手順
 ### セットアップ
 1. 下記の何れかでmozartの自分のフォルダ(`$HOME`)で `git clone`
-     - `git clone https://github.com/miya789/MailSystem.git` : デフォルト
-     - `git clone git@github.com:miya789/MailSystem.git` : GitHubとSSH通信可能な人用
+    - `git clone https://github.com/miya789/MailSystem.git` : デフォルト
+    - `git clone git@github.com:miya789/MailSystem.git` : GitHubとSSH通信可能な人用
 2. 各ディレクトリ( `Executive` , `TeamMEMS` )の `.private_info` を自分用の設定に置き換える
 3. `cd Executive`
 4. `chmod a+x ExecutiveMail.sh`
@@ -68,7 +68,7 @@
 7. `crontab -e`
 8.  iキーを押す(insertモード)
 9.  `00 09 * * * (pwdの結果)/ExecutiveMail.sh`　と入力
-     eg) `00 09 * * * $HOME/MailSystem/Executive/ExecutiveMail.sh`
+    - eg) `00 09 * * * $HOME/MailSystem/Executive/ExecutiveMail.sh`
 10. `:wq` と入力(エディタから抜ける)
 
 ### 普段
