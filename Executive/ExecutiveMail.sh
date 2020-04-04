@@ -10,18 +10,18 @@ echo "Loading environment file..."
 source "${dir}.private_info"
 
 # ファイル名の準備
-set TMP_FILENAME 							= "tmp.txt"
-set SCHEDULE_FILENAME					= "schedule.txt"
-set SIGNATURE_FILENAME				= "signature.txt"
-set HOLIDAYS_FILENAME					= "holidays.txt"
-set HOLIDAYS_SCRIPT_FILENAME 	= "holidays.sh"
-set LOG_FILENAME							= "log2.txt"
-set TMP										= "${dir}${TMP_FILENAME}"
-set SCHEDULE_FILE					= "${dir}${SCHEDULE_FILENAME}"
-set SIGNATURE_FILE				= "${dir}${SIGNATURE_FILENAME}"
-set HOLIDAYS_FILE					= "${dir}${HOLIDAYS_FILENAME}"
-set HOLIDAYS_SCRIPT_FILE	= "${dir}${HOLIDAYS_SCRIPT_FILENAME}"
-set LOG_FILE							= "${dir}${LOG_FILENAME}"
+set TMP_FILENAME              = "tmp.txt"
+set SCHEDULE_FILENAME         = "schedule.txt"
+set SIGNATURE_FILENAME        = "signature.txt"
+set HOLIDAYS_FILENAME         = "holidays.txt"
+set HOLIDAYS_SCRIPT_FILENAME  = "holidays.sh"
+set LOG_FILENAME              = "log2.txt"
+set TMP                   = "${dir}${TMP_FILENAME}"
+set SCHEDULE_FILE         = "${dir}${SCHEDULE_FILENAME}"
+set SIGNATURE_FILE        = "${dir}${SIGNATURE_FILENAME}"
+set HOLIDAYS_FILE         = "${dir}${HOLIDAYS_FILENAME}"
+set HOLIDAYS_SCRIPT_FILE  = "${dir}${HOLIDAYS_SCRIPT_FILENAME}"
+set LOG_FILE              = "${dir}${LOG_FILENAME}"
 set SENDMAIL_PATH = "/usr/sbin/sendmail"
 
 # 日付計算
@@ -36,8 +36,8 @@ echo "" >> ${LOG_FILE}
 # 曜日の判定
 @ plusdate=0
 set day_of_week_num = `date "+%u"`
-set date						= `date "+%Y%m%d"`
-set is_holiday			= `grep ${date} ${HOLIDAYS_FILE}`
+set date            = `date "+%Y%m%d"`
+set is_holiday      = `grep ${date} ${HOLIDAYS_FILE}`
 
 echo "Today:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
 echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
