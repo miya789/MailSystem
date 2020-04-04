@@ -1,15 +1,14 @@
 #!/bin/sh -f
 
-#-----------------------------------------
-# change here
-#-----------------------------------------
-# cshなので <NAME>=<value> で設定
+export LC_ALL="c date" # for Japanese env
 
 # dir="/home/miyazawa/ExecutiveMail/"
 # dir="${HOME}/ExecutiveMail/"
 dir="./"
 
-echo $GRADE
+echo "Loading environment file..."
+. "${dir}.private_info_sh"
+
 # ファイル名の準備
 TMP_FILENAME="tmp.txt"
 SCHEDULE_FILENAME="schedule.txt"
@@ -26,203 +25,250 @@ LOG_FILE=${dir}${LOG_FILENAME}
 pathsendmail = "/usr/sbin/sendmail"
 
 # 日付計算
-echo "#########################" >> ${LOG_FILE}
-echo `date "+%Y/%m/%d-%H:%M:%S"` >> ${LOG_FILE}
-# echo `date -u +"%Y-%m-%dT%H:%M:%SZ"` >> ${LOG_FILE}
-echo "#########################" >> ${LOG_FILE}
+echo "" >> ${LOG_FILE}
+echo "[MAIL LOG] `date "+%Y/%m/%d-%H:%M:%S"`" >> ${LOG_FILE}
 
 # 休日データのロード
 ${HOLIDAYS_SCRIPT_FILE} > ${HOLIDAYS_FILE}
-echo "Holiday File Regenerated." >> ${LOG_FILE}
+echo "Holiday File Regenerated." | sed "s/^/  /g" >> ${LOG_FILE}
 echo "" >> ${LOG_FILE}
 
 # 曜日の判定
 
-youbi_judge () {
-  echo $1
+(
   plusdate=0
-  yobi=`date "+%u"`
+  day_of_week_num=`date "+%u"`
   Sat=1
   Sun=2
-  tmpdate=`date "+%Y%m%d"`
-  holidayflg=`grep ${tmpdate} ${HOLIDAYS_FILE}`
+  date=`date "+%Y%m%d"`
+  is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
 
-  echo "First... yobi:${yobi}, tmpdate:${tmpdate}, holidayflg:${holidayflg}" | column -t >> $1
+  echo "Today:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
+  echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
 
-  echo [ $yobi -eq $yobi ]
-  if [ $yobi -eq $Sat ] || [ ${yobi} -eq $Sun ] || [ "${holidayflg}" != "" ]; then
-    echo "Today is holiday." >> $1
+  if [ $day_of_week_num -eq $Sat ] || [ $day_of_week_num -eq $Sun ] || [ "${is_holiday}" != "" ]; then
+    echo "Today is a holiday, so finished." | sed "s/^/  /g" >> ${LOG_FILE}
     exit 0
   else
+    echo "Today is not a holiday, so continuing..." | sed "s/^/  /g" >> ${LOG_FILE}
+    echo "" >> ${LOG_FILE}
+
+    # 次の平日の調査
+    echo "Searching the next weekday..." | sed "s/^/  /g" >> ${LOG_FILE}
     plusdate=$(expr $plusdate + 1)
-    yobi=`date -d "${plusdate} day" +%u`
-    tmpdate=`date -d "${plusdate} days" +%Y%m%d`
-    holidayflg=`grep ${tmpdate} ${HOLIDAYS_FILE}`
+    # day_of_week_num >>>
+    if [ "${OSTYPE}" = "FreeBSD" ]; then
+      day_of_week_num=`date -v+${plusdate}d "+%u"`
+    elif [ "${OSTYPE}" = "linux-gnu" ]; then
+      day_of_week_num=`date -d "${plusdate} day" +%u`
+    fi
+    # day_of_week_num <<<
+    # date >>>
+    if [ "${OSTYPE}" = "FreeBSD" ]; then
+      date=`date -v+${plusdate}d "+%Y%m%d"`
+    elif [ "${OSTYPE}" = "linux-gnu" ]; then
+      date=`date -d "${plusdate} days" +%Y%m%d`
+    fi
+    # date <<<
+    is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
+    echo "${plusdate} day later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
+    echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
 
-    echo "${plusdate}days... yobi:${yobi}, tmpdate:${tmpdate}, holidayflg:${holidayflg}" | column -t >> $1
-
-    while [ ${yobi} -eq ${Sat} ] || [ ${yobi} -eq $Sun ] || [ "${holidayflg}" != ""  ]; do
+    # 次の平日に辿り着く迄逃れられない！
+    while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${holidayflg}" != ""  ]; do
       plusdate=$(expr $plusdate + 1)
-      yobi=`date -d "${plusdate} day" +%u`
-      tmpdate=`date -d "${plusdate} days" +%Y%m%d`
-      holidayflg=`grep ${tmpdate} ${HOLIDAYS_FILE}`
-      echo "${plusdate}days... yobi:${yobi}, tmpdate:${tmpdate}, holidayflg:${holidayflg}" | column -t >> $1
+      # day_of_week_num >>>
+      if [ "${OSTYPE}" = "FreeBSD" ]; then
+        day_of_week_num=`date -v+${plusdate}d "+%u"`
+      elif [ "${OSTYPE}" = "linux-gnu" ]; then
+        day_of_week_num=`date -d "${plusdate} day" +%u`
+      fi
+      # day_of_week_num <<<
+      # date >>>
+      if [ "${OSTYPE}" = "FreeBSD" ]; then
+        date=`date -v+${plusdate}d "+%Y%m%d"`
+      elif [ "${OSTYPE}" = "linux-gnu" ]; then
+        date=`date -d "${plusdate} days" +%Y%m%d`
+      fi
+      # date <<<
+      is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
+      echo "${plusdate} days later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
+      echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
     done
   fi
+)
 
-  echo "Last... yobi:${yobi}, tmpdate:${tmpdate}, holidayflg:${holidayflg}" | column -t >> $1
-  echo "" >> $1
+echo "Finished!" | sed "s/^/  /g" >> ${LOG_FILE}
+echo "The next weekday:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
+echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
 
-  tomorrow=`date -d "${plusdate} days" "+%m/%d"`
-  # tomorrow=`date -v+${plusdate}d "+%m/%d"`
+echo $OSTYPE
+if [ "${OSTYPE}" = "FreeBSD" ]; then
+  NEXT_WEEKDAY=`date -v+${plusdate}d "+%m/%d"`
+elif [ "${OSTYPE}" = "linux-gnu" ]; then
+  NEXT_WEEKDAY=`date -d "${plusdate} days" "+%m/%d"`
+fi
 
-  echo "Next weekday is ${tomorrow}" >> $1
-}
-
-youbi_judge ${LOG_FILE}
-
+echo "" >> ${LOG_FILE}
+echo "Checking if there is the meeting on ${NEXT_WEEKDAY}..." | sed "s/^/  /g" >> ${LOG_FILE}
 # メール送信判定
-
-flg=0
-
+should_send_mail=0
 COUNT=`grep '' ${SCHEDULE_FILE} | wc -l`
-
 i=1
-
 while [ $i -le $COUNT ]; do
-	line="`cat $SCHEDULE_FILE | head -$i | tail -1`"
-	DATE=`echo "$line" | cut -d' ' -f1`
-	if [ $DATE = $tomorrow ]; then
-		jikan=`echo "$line" | cut -d' ' -f2`
-		place=`echo "$line" | cut -d' ' -f3`
-		url=`echo "$line" | cut -d' ' -f4`
-		echo "We have a meeting on ${tomorrow} ${jikan} at ${place}." >> ${LOG_FILE}
-		flg=1
-	fi
+  line=`cat $SCHEDULE_FILE | head -$i | tail -1`
+  echo "[${i}/${COUNT}]: ${line}" | sed "s/^/    /g" >> ${LOG_FILE}
+  DATE=`echo "$line" | cut -d' ' -f1`
+  echo "$DATE  $NEXT_WEEKDAY"
+  if [ $DATE = $NEXT_WEEKDAY ]; then
+    MEETING_TIME=`echo "$line" | cut -d' ' -f2`
+    MEETING_PLACE=`echo "$line" | cut -d' ' -f3`
+    MEETING_ZOOM_URL=`echo "$line" | cut -d' ' -f4`
+    echo "We have the meeting from ${MEETING_TIME} on ${NEXT_WEEKDAY} at ${MEETING_PLACE}." | sed "s/^/  /g" >> ${LOG_FILE}
+    should_send_mail=1
+  fi
   i=$(expr $i + 1)
 done
 
-if [ $flg -eq 0 ]; then
-	echo "There is no meeting on ${tomorrow}." >> ${LOG_FILE}
+if [ $should_send_mail -eq 0 ]; then
+	echo "There is no meeting on ${NEXT_WEEKDAY}." >> ${LOG_FILE}
 	exit 0
 fi
 
 # 文面作成用変数設定
-placeEN=$place
-placeJP=$place
+MEETING_PLACE_EN=$place
+MEETING_PLACE_JP=$place
 
-case $place in
+case $MEETING_PLACE in
 	113 )
-		placeEN="Bldg. 3 Room 113 (Seminar 3)"
-		placeJP="工学部3号館 113号室 (電気系セミナー室3) "
+		MEETING_PLACE_EN="Bldg. 3 Room 113 (Seminar 3)"
+		MEETING_PLACE_JP="工学部3号館 113号室 (電気系セミナー室3) "
 		;;
 	114 )
-		placeEN="Bldg. 3 Room 114 (Seminar 2)"
-		placeJP="工学部3号館 114号室 (電気系セミナー室2) "
+		MEETING_PLACE_EN="Bldg. 3 Room 114 (Seminar 2)"
+		MEETING_PLACE_JP="工学部3号館 114号室 (電気系セミナー室2) "
 		;;
 	128 )
-		placeEN="Bldg. 3 Room 128 (Seminar 1)"
-		placeJP="工学部3号館128号室 (電気系セミナー室1) "
+		MEETING_PLACE_EN="Bldg. 3 Room 128 (Seminar 1)"
+		MEETING_PLACE_JP="工学部3号館128号室 (電気系セミナー室1) "
 		;;
 	VDEC306 )
-		placeEN="VDEC 306"
-		placeJP="VDEC 306"
+		MEETING_PLACE_EN="VDEC 306"
+		MEETING_PLACE_JP="VDEC 306"
 		;;
 	VDEC402 )
-		placeEN="VDEC 402"
-		placeJP="VDEC 402"
+		MEETING_PLACE_EN="VDEC 402"
+		MEETING_PLACE_JP="VDEC 402"
     ;;
 	Bldg13 )
-		placeEN="Bldg. 13"
-		placeJP="13号館一般実験室"
+		MEETING_PLACE_EN="Bldg. 13"
+		MEETING_PLACE_JP="13号館一般実験室"
 		;;
 	default )
-		placeEN=$place
-		placeJP=$place
-		echo "Unusual place: ${place}" >> ${LOG_FILE}
+		MEETING_PLACE_EN=$MEETING_PLACE
+		MEETING_PLACE_JP=$MEETING_PLACE
+		echo "Unusual place: ${MEETING_PLACE}" >> ${LOG_FILE}
 		;;
 esac
 
-case ${yobi} in
+case ${day_of_week_num} in
 	1 )
-		yobiJP="月"
-		yobiEN="Mon"
+		day_of_week_JP="月"
+		day_of_week_EN="Mon"
     ;;
 	2 )
-		yobiJP="火"
-		yobiEN="Tue"
+		day_of_week_JP="火"
+		day_of_week_EN="Tue"
     ;;
 	3 )
-		yobiJP="水"
-		yobiEN="Wed"
+		day_of_week_JP="水"
+		day_of_week_EN="Wed"
     ;;
 	4 )
-		yobiJP="木"
-		yobiEN="Thu"
+		day_of_week_JP="木"
+		day_of_week_EN="Thu"
     ;;
 	5 )
-		yobiJP="金"
-		yobiEN="Fri"
+		day_of_week_JP="金"
+		day_of_week_EN="Fri"
     ;;
 	6 )
-		yobiJP="土"
-		yobiEN="Sat"
+		day_of_week_JP="土"
+		day_of_week_EN="Sat"
     ;;
 	7 )
-		yobiJP="日"
-		yobiEN="Sun"
+		day_of_week_JP="日"
+		day_of_week_EN="Sun"
     ;;
 esac
 
-month=`date -d "${plusdate} days" "+%m" | bc`
-# month=`date -v+${plusdate}d "+%m" | bc`
-hizuke=`date -d "${plusdate} days" "+%d" | bc`
-# hizuke=`date -v+${plusdate}d "+%d" | bc`
+if [ "${OSTYPE}" = "FreeBSD" ]; then
+  MONTH=`date -v+${plusdate}d "+%m" | bc`
+  DAY=`date -v+${plusdate}d "+%d" | bc`
+elif [ "${OSTYPE}" = "linux-gnu" ]; then
+  MONTH=`date -d "${plusdate} days" "+%m" | bc`
+  DAY=`date -d "${plusdate} days" "+%d" | bc`
+fi
 
-tomorrowTitle="${month}/${hizuke}(${yobiEN})"
-tomorrowJP="${month}/${hizuke}(${yobiJP})"
-# tomorrowEN=`date -v+${plusdate}d "+%A, %B "`${hizuke}
-tomorrowEN=`date -d "${plusdate} days" "+%A, %B "`${hizuke}
+DATE_FOR_TITLE="${MONTH}/${DAY}(${day_of_week_EN})"
+DATE_FOR_CONTENTS_JP="${MONTH}/${DAY}(${day_of_week_JP})"
+if [ "${OSTYPE}" = "FreeBSD" ]; then
+  DATE_FOR_CONTENTS_EN=`date -v+${plusdate}d "+%A, %B "`${DAY}
+elif [ "${OSTYPE}" = "linux-gnu" ]; then
+  DATE_FOR_CONTENTS_EN=`date -d "${plusdate} days" "+%A, %B "`${DAY}
+fi
 
-subject="The next Executive Meeting【${tomorrowTitle} ${jikan} - @${placeJP}】"
-subjectEnc=`echo ${subject} | nkf --mime --ic=UTF-8 --oc=UTF-8`
+SUBJECT="The next Executive Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @${MEETING_PLACE_JP}】"
+SUBJECT_ENC=`echo ${SUBJECT} | nkf --mime --ic=UTF-8 --oc=UTF-8`
 
-# 文面作成及び送信--
+# メール文面ファイル(temp.txt)執筆
 if [ -e ${TMP} ]; then
-	rm -rf ${TMP}
+  rm -rf ${TMP}
 fi
 touch ${TMP}
 (
   echo "From: ${from}"
   echo "To: ${to}"
   # echo "Bcc: ${bcc}"
-  echo "Subject: ${subjectEnc}"
+  echo "Subject: ${SUBJECT_ENC}"
   echo "Content-Type: text/plain; charset=UTF-8"
   echo "Content-Transfer-Encoding: 8bit"
   echo "MIME-Version: 1.0"
   echo 
-  echo "${GRADE}の${NAME}です。"
-  echo "次回のExecutive Meetingは${tomorrowJP} ${jikan} - @${placeJP}で行われます。"
-  echo "Zoom URL: ${url}."
-  echo "よろしくお願いします。"
-  echo
-  echo "Dear Executive members:"
-  echo
-  echo "The next Executive Meeting is going to be held at the ${placeEN} from ${jikan} on"
-  echo "${tomorrowEN}. Please attend the meeting."
+
+  echo "Executiveの皆様"
+  echo ""
+  echo "${GRADE}の${NAME_JP}です．"
+  echo "次回のExecutive Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @${MEETING_PLACE_JP}で行われます．"
+  if [ "$MEETING_ZOOM_URL" != "" ]; then
+    echo "(Zoom URL: ${MEETING_ZOOM_URL})"
+  fi
+  echo "宜しくお願い致します．"
+  echo ""
+  echo ""
+  echo "Dear Executive members,"
+  echo ""
+  echo "I'm ${GRADE} ${NAME_EN}."
+  echo "The next Executive Meeting is going to be held at the ${MEETING_PLACE_EN} from ${MEETING_TIME} on ${DATE_FOR_CONTENTS_EN}."
+  if [ "$MEETING_ZOOM_URL" != "" ]; then
+    echo "(Zoom URL: ${MEETING_ZOOM_URL})"
+  fi
+  echo "Please attend the meeting."
   echo "Thank you."
-  echo
-  echo '--'
+  echo ""
+  echo "--"
   cat ${SIGNATURE_FILE}
 ) >> ${TMP}
 
-#BCC使わなければこっちが安全
-#cat ${TMP} | $pathsendmail -i -f ${from} ${to}
+# メール文面の送信
+# cat ${TMP} | $SENDMAIL_PATH -i -f ${from} ${to} # BCC使わなければこっちが安全
+# cat ${TMP} | $SENDMAIL_PATH -i -t
 
-# cat ${TMP} | $pathsendmail -i -t
-
-echo "Contents:" >> ${LOG_FILE}
-cat ${TMP} | sed "s/^/  /g" >> ${LOG_FILE}
+# メール文面のログ吐き出し
+echo "" >> ${LOG_FILE}
+echo "The sent mail is as follows..." | sed "s/^/  /g" >> ${LOG_FILE}
+cat ${TMP} | sed "s/^/    /g" >> ${LOG_FILE}
 echo "" >> ${LOG_FILE}
 
+# メール文面ファイルの削除
 # rm -f ${TMP}
