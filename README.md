@@ -68,11 +68,11 @@
 7. `crontab -e`
 8.  iキーを押す(insertモード)
 9.  `00 09 * * * (pwdの結果)/ExecutiveMail.sh`　と入力
-     eg) `00 09 * * * /$USER/Executive/ExecutiveMail.sh`
+     eg) `00 09 * * * $HOME/MailSystem/Executive/ExecutiveMail.sh`
 10. `:wq` と入力(エディタから抜ける)
 
 ### 普段
-- Meetingで日程が決まるたびに、{Executive, TeamMEMS}/schedule.txtを更新する。
+- Meetingで日程が決まるたびに、 `{Executive, TeamMEMS}/schedule.txt` を更新する。
 - 決まった直後に行うのが忘れなくて良い。
 - なお、うまく送信できなかった時は自分宛にcronからメールが届くはずである。
   - その時は自分でメールを書いて送信すれば良い。
