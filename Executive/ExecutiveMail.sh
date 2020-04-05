@@ -42,7 +42,7 @@ set is_holiday      = `grep ${date} ${HOLIDAYS_FILE}`
 echo "Today:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
 echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
 
-if ((${day_of_week_num} == 1) || (${day_of_week_num} == 7) || ("${is_holiday}" != "")) then
+if ((${day_of_week_num} == 6) || (${day_of_week_num} == 7) || ("${is_holiday}" != "")) then
   echo "Today is a holiday, so finished." | sed "s/^/  /g" >> ${LOG_FILE}
   exit 0
 else
