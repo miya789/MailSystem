@@ -6,7 +6,6 @@ export LC_ALL="c date" # for Japanese env
 # dir="${HOME}/ExecutiveMail/"
 dir="./"
 
-echo "Loading environment file..."
 . "${dir}.private_info_sh"
 
 # ファイル名の準備
@@ -22,7 +21,7 @@ SIGNATURE_FILE="${dir}${SIGNATURE_FILENAME}"
 HOLIDAYS_FILE="${dir}${HOLIDAYS_FILENAME}"
 HOLIDAYS_SCRIPT_FILE="${dir}${HOLIDAYS_SCRIPT_FILENAME}"
 LOG_FILE=${dir}${LOG_FILENAME}
-pathsendmail = "/usr/sbin/sendmail"
+pathsendmail="/usr/sbin/sendmail"
 
 generate_diff_option () {
   if [ "${OSTYPE}" = "FreeBSD" ]; then
@@ -33,24 +32,30 @@ generate_diff_option () {
 }
 
 # 日付計算
-echo "" >> ${LOG_FILE}
-echo "[MAIL LOG] `date "+%Y/%m/%d-%H:%M:%S"`" >> ${LOG_FILE}
+(
+echo ""
+echo "[MAIL LOG] `date "+%Y/%m/%d-%H:%M:%S"`"
+) >> ${LOG_FILE}
 
 # 休日データのロード
 ${HOLIDAYS_SCRIPT_FILE} > ${HOLIDAYS_FILE}
-echo "Holiday File Regenerated." | sed "s/^/  /g" >> ${LOG_FILE}
-echo "" >> ${LOG_FILE}
+(
+  echo "Holiday File Regenerated." | sed "s/^/  /g"
+  echo ""
+) >> ${LOG_FILE}
 
 # 曜日の判定
+Sat=6
+Sun=7
 plusdate=0
 day_of_week_num=`date "+%u"`
-Sat=1
-Sun=2
 date=`date "+%Y%m%d"`
 is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
 
-echo "Today:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
-echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
+(
+  echo "Today:" | sed "s/^/  /g" | column -t -s,
+  echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g"
+) >> ${LOG_FILE}
 
 if [ $day_of_week_num -eq $Sat ] || [ $day_of_week_num -eq $Sun ] || [ "${is_holiday}" != "" ]; then
   echo "Today is a holiday, so finished." | sed "s/^/  /g" >> ${LOG_FILE}
@@ -79,14 +84,18 @@ else
   done
 fi
 
-echo "Finished!" | sed "s/^/  /g" >> ${LOG_FILE}
-echo "The next weekday:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
-echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
+(
+  echo "Finished!" | sed "s/^/  /g"
+  echo "The next weekday:" | sed "s/^/  /g" | column -t -s,
+  echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g"
+) >> ${LOG_FILE}
 
 NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%m/%d"`
+(
+  echo ""
+  echo "Checking if there is the meeting on ${NEXT_WEEKDAY}..." | sed "s/^/  /g"
+) >> ${LOG_FILE}
 
-echo "" >> ${LOG_FILE}
-echo "Checking if there is the meeting on ${NEXT_WEEKDAY}..." | sed "s/^/  /g" >> ${LOG_FILE}
 # メール送信判定
 should_send_mail=0
 COUNT=`grep '' ${SCHEDULE_FILE} | wc -l`
@@ -99,14 +108,14 @@ while [ $i -le $COUNT ]; do
     MEETING_TIME=`echo "$line" | cut -d' ' -f2`
     MEETING_PLACE=`echo "$line" | cut -d' ' -f3`
     MEETING_ZOOM_URL=`echo "$line" | cut -d' ' -f4`
-    echo "We have the meeting from ${MEETING_TIME} on ${NEXT_WEEKDAY} at ${MEETING_PLACE}." | sed "s/^/  /g" >> ${LOG_FILE}
+    echo "We have the meeting from ${MEETING_TIME} on ${DATE} at ${MEETING_PLACE}." | sed "s/^/  /g" >> ${LOG_FILE}
     should_send_mail=1
   fi
   i=$(expr $i + 1)
 done
 
 if [ $should_send_mail -eq 0 ]; then
-	echo "There is no meeting on ${NEXT_WEEKDAY}." >> ${LOG_FILE}
+	echo "There is no meeting on ${DATE}." >> ${LOG_FILE}
 	exit 0
 fi
 
@@ -182,7 +191,7 @@ DAY=`eval "date $(generate_diff_option ${plusdate}) +%d" | bc`
 
 DATE_FOR_TITLE="${MONTH}/${DAY}(${day_of_week_EN})"
 DATE_FOR_CONTENTS_JP="${MONTH}/${DAY}(${day_of_week_JP})"
-DATE_FOR_CONTENTS_EN=`"date $(generate_diff_option ${plusdate}) \"+%A, %B \""`${DAY}
+DATE_FOR_CONTENTS_EN=`eval "date "$(generate_diff_option ${plusdate})" +'%A, %B'"`${DAY}
 
 SUBJECT="The next Executive Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @${MEETING_PLACE_JP}】"
 SUBJECT_ENC=`echo ${SUBJECT} | nkf --mime --ic=UTF-8 --oc=UTF-8`
@@ -228,13 +237,15 @@ touch ${TMP}
 
 # メール文面の送信
 # cat ${TMP} | $SENDMAIL_PATH -i -f ${from} ${to} # BCC使わなければこっちが安全
-# cat ${TMP} | $SENDMAIL_PATH -i -t
+cat ${TMP} | $SENDMAIL_PATH -i -t
 
 # メール文面のログ吐き出し
-echo "" >> ${LOG_FILE}
-echo "The sent mail is as follows..." | sed "s/^/  /g" >> ${LOG_FILE}
-cat ${TMP} | sed "s/^/    /g" >> ${LOG_FILE}
-echo "" >> ${LOG_FILE}
+(
+  echo ""
+  echo "The sent mail is as follows..." | sed "s/^/  /g"
+  cat ${TMP} | sed "s/^/    /g"
+  echo ""
+) >> ${LOG_FILE}
 
 # メール文面ファイルの削除
-# rm -f ${TMP}
+rm -f ${TMP}
