@@ -35,15 +35,15 @@ generate_diff_option () {
 }
 
 # 1.6 ログ用の時間を記録
-echo "[MAIL LOG] `date "+%Y/%m/%d-%H:%M:%S"`" >> ${LOG_FILE}
+printf "[MAIL LOG] `date "+%Y/%m/%d-%H:%M:%S"`\n" >> ${LOG_FILE}
 
 # 1.7 最新休日情報のロード
 ${PUBLIC_HOLIDAYS_SCRIPT_FILE} > ${PUBLIC_HOLIDAYS_FILE}
-echo "Holiday File Regenerated.\n" | sed "s/^/  /g" >> ${LOG_FILE}
+printf "Holiday File Regenerated.\n\n" | sed "s/^/  /g" >> ${LOG_FILE}
 
 # 2.1 曜日の判定
 Sat=6
-Sun=1
+Sun=7
 plusdate=0
 day_of_week_num=`date "+%u"`
 date=`date "+%Y%m%d"`
@@ -51,26 +51,26 @@ is_public_holiday=`grep ${date} ${PUBLIC_HOLIDAYS_FILE}`
 
 # 2.2 本日の詳細
 (
-  echo "Today:" | sed "s/^/  /g" | column -t -s,
-  echo "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}" | sed "s/^/    /g"
+  printf "Today:\n" | sed "s/^/  /g" | column -t -s,
+  printf "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}\n" | sed "s/^/    /g"
 ) >> ${LOG_FILE}
 
 # 2.3 「本日が休日か」判定
 if [ $day_of_week_num -eq $Sat ] || [ $day_of_week_num -eq $Sun ] || [ "${is_public_holiday}" != "" ]; then
-  echo "Today is a holiday, so finished.\n" | sed "s/^/  /g" >> ${LOG_FILE}
+  printf "Today is a holiday, so finished.\n\n" | sed "s/^/  /g" >> ${LOG_FILE}
   exit 0
 else
-  echo "Today is not a holiday, so continuing...\n" | sed "s/^/  /g" >> ${LOG_FILE}
+  printf "Today is not a holiday, so continuing...\n\n" | sed "s/^/  /g" >> ${LOG_FILE}
 fi
 
 # 2.4 次の平日の探索
-echo "Searching the next weekday..." | sed "s/^/  /g" >> ${LOG_FILE}
+printf "Searching the next weekday...\n" | sed "s/^/  /g" >> ${LOG_FILE}
 plusdate=$(expr $plusdate + 1)
 day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
 date=`eval "date $(generate_diff_option ${plusdate}) +%Y%m%d"`
 is_public_holiday=`grep ${date} ${PUBLIC_HOLIDAYS_FILE}`
-echo "${plusdate} day later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
-echo "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
+printf "${plusdate} day later:\n" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
+printf "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}\n" | sed "s/^/    /g" >> ${LOG_FILE}
 
 ## 次の平日に辿り着くまでループ
 while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${holidayflg}" != ""  ]; do
@@ -78,33 +78,32 @@ while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${h
   day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
   date=`eval "date $(generate_diff_option ${plusdate}) +%Y%m%d"`
   is_public_holiday=`grep ${date} ${PUBLIC_HOLIDAYS_FILE}`
-  echo "${plusdate} days later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
-  echo "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
+  printf "${plusdate} days later:\n" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
+  printf "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}\n" | sed "s/^/    /g" >> ${LOG_FILE}
 done
 
 # 2.6 発見した次の翌日の詳細
 NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%m/%d"`
 (
-  echo "Finished!" | sed "s/^/  /g"
-  echo "The next weekday:" | sed "s/^/  /g" | column -t -s,
-  echo "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}" | sed "s/^/    /g"
-  echo ""
+  printf "Finished!\n" | sed "s/^/  /g"
+  printf "The next weekday:\n" | sed "s/^/  /g" | column -t -s,
+  printf "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}\n\n" | sed "s/^/    /g"
 ) >> ${LOG_FILE}
 
 # 3.1 該当日付の予定確認
-echo "Checking if there is the meeting on ${NEXT_WEEKDAY}..." | sed "s/^/  /g"  >> ${LOG_FILE}
+printf "Checking if there is the meeting on ${NEXT_WEEKDAY}...\n" | sed "s/^/  /g"  >> ${LOG_FILE}
 should_send_mail=0
 COUNT=`grep '' ${SCHEDULE_FILE} | wc -l`
 i=1
 while [ $i -le $COUNT ] && [ $should_send_mail -eq 0 ]; do
   line=`cat $SCHEDULE_FILE | head -$i | tail -1`
-  echo "[${i}/${COUNT}]: ${line}" | sed "s/^/    /g" >> ${LOG_FILE}
+  printf "[${i}/${COUNT}]: ${line}\n" | sed "s/^/    /g" >> ${LOG_FILE}
   DATE=`echo "$line" | cut -d' ' -f1`
   if [ $DATE = $NEXT_WEEKDAY ]; then
     MEETING_TIME=`echo "$line" | cut -d' ' -f2`
     MEETING_PLACE=`echo "$line" | cut -d' ' -f3`
     MEETING_ZOOM_URL=`echo "$line" | cut -d' ' -f4`
-    echo "We have the meeting from ${MEETING_TIME} on ${DATE} at ${MEETING_PLACE}." | sed "s/^/  /g" >> ${LOG_FILE}
+    printf "We have the meeting from ${MEETING_TIME} on ${DATE} at ${MEETING_PLACE}.\n" | sed "s/^/  /g" >> ${LOG_FILE}
     should_send_mail=1
   fi
   i=$(expr $i + 1)
@@ -112,7 +111,7 @@ done
 
 # 3.2 予定の有無を判定
 if [ $should_send_mail -eq 0 ]; then
-  echo "There is no meeting on ${DATE}.\n" >> ${LOG_FILE}
+  printf "There is no meeting on ${DATE}.\n\n" >> ${LOG_FILE}
   exit 0
 fi
 
@@ -145,7 +144,7 @@ case $MEETING_PLACE in
   * )
     MEETING_PLACE_EN=$MEETING_PLACE
     MEETING_PLACE_JP=$MEETING_PLACE
-    echo "Unusual place: ${MEETING_PLACE}" | sed "s/^/  /g" >> ${LOG_FILE}
+    printf "Unusual place: ${MEETING_PLACE}\n" | sed "s/^/  /g" >> ${LOG_FILE}
     ;;
 esac
 
@@ -180,7 +179,7 @@ case ${day_of_week_num} in
     day_of_week_EN="Sun"
     ;;
   * )
-    echo "The day of week(No.${day_of_week_num}) is invalid error." | sed "s/^/  /g" >> ${LOG_FILE}
+    printf "The day of week(No.${day_of_week_num}) is invalid error.\n\n" | sed "s/^/  /g" >> ${LOG_FILE}
     exit 1
     ;;
 esac
@@ -205,8 +204,8 @@ touch ${TMP}
 
 # 4.4 文面ファイル(tmp.txt)の執筆
 (
-  echo "From: ${from}"
-  echo "To: ${to}"
+  echo "From: ${FROM}"
+  echo "To: ${TO}"
   if [ "$BCC" != "" ]; then
     echo "Bcc: ${BCC}"
   fi
@@ -241,15 +240,14 @@ touch ${TMP}
 ) >> ${TMP}
 
 # 4.5 メールの送信
-# cat ${TMP} | $SENDMAIL_PATH -i -f ${from} ${to} # BCC使わなければこっちが安全
+# cat ${TMP} | $SENDMAIL_PATH -i -f ${FROM} ${TO} # BCC使わなければこっちが安全
 cat ${TMP} | $SENDMAIL_PATH -i -t
 
 # 4.6 文面ファイル(tmp.txt)をログへ吐き出し
 (
-  echo ""
-  echo "The sent mail is as follows..." | sed "s/^/  /g"
+  printf "\nThe sent mail is as follows...\n" | sed "s/^/  /g"
   cat ${TMP} | sed "s/^/    /g"
-  echo ""
+  printf "\n"
 ) >> ${LOG_FILE}
 
 # 4.7 文面ファイル(tmp.txt)の削除
