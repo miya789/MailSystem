@@ -24,6 +24,14 @@ HOLIDAYS_SCRIPT_FILE="${dir}${HOLIDAYS_SCRIPT_FILENAME}"
 LOG_FILE=${dir}${LOG_FILENAME}
 pathsendmail = "/usr/sbin/sendmail"
 
+generate_diff_option () {
+  if [ "${OSTYPE}" = "FreeBSD" ]; then
+    echo "-v+${plusdate}d"
+  elif [ "${OSTYPE}" = "linux-gnu" ]; then
+    echo "-d \"${plusdate} days\""
+  fi
+}
+
 # 日付計算
 echo "" >> ${LOG_FILE}
 echo "[MAIL LOG] `date "+%Y/%m/%d-%H:%M:%S"`" >> ${LOG_FILE}
@@ -54,20 +62,8 @@ else
   # 次の平日の調査
   echo "Searching the next weekday..." | sed "s/^/  /g" >> ${LOG_FILE}
   plusdate=$(expr $plusdate + 1)
-  # day_of_week_num >>>
-  if [ "${OSTYPE}" = "FreeBSD" ]; then
-    day_of_week_num=`date -v+${plusdate}d "+%u"`
-  elif [ "${OSTYPE}" = "linux-gnu" ]; then
-    day_of_week_num=`date -d "${plusdate} day" +%u`
-  fi
-  # day_of_week_num <<<
-  # date >>>
-  if [ "${OSTYPE}" = "FreeBSD" ]; then
-    date=`date -v+${plusdate}d "+%Y%m%d"`
-  elif [ "${OSTYPE}" = "linux-gnu" ]; then
-    date=`date -d "${plusdate} days" +%Y%m%d`
-  fi
-  # date <<<
+  day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
+  date=`eval "date $(generate_diff_option ${plusdate}) +%Y%m%d"`
   is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
   echo "${plusdate} day later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
   echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
@@ -75,20 +71,8 @@ else
   # 次の平日に辿り着く迄逃れられない！
   while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${holidayflg}" != ""  ]; do
     plusdate=$(expr $plusdate + 1)
-    # day_of_week_num >>>
-    if [ "${OSTYPE}" = "FreeBSD" ]; then
-      day_of_week_num=`date -v+${plusdate}d "+%u"`
-    elif [ "${OSTYPE}" = "linux-gnu" ]; then
-      day_of_week_num=`date -d "${plusdate} day" +%u`
-    fi
-    # day_of_week_num <<<
-    # date >>>
-    if [ "${OSTYPE}" = "FreeBSD" ]; then
-      date=`date -v+${plusdate}d "+%Y%m%d"`
-    elif [ "${OSTYPE}" = "linux-gnu" ]; then
-      date=`date -d "${plusdate} days" +%Y%m%d`
-    fi
-    # date <<<
+    day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
+    date=`eval "date $(generate_diff_option ${plusdate}) +%Y%m%d"`
     is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
     echo "${plusdate} days later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
     echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
@@ -99,11 +83,7 @@ echo "Finished!" | sed "s/^/  /g" >> ${LOG_FILE}
 echo "The next weekday:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
 echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
 
-if [ "${OSTYPE}" = "FreeBSD" ]; then
-  NEXT_WEEKDAY=`date -v+${plusdate}d "+%m/%d"`
-elif [ "${OSTYPE}" = "linux-gnu" ]; then
-  NEXT_WEEKDAY=`date -d "${plusdate} days" "+%m/%d"`
-fi
+NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%m/%d"`
 
 echo "" >> ${LOG_FILE}
 echo "Checking if there is the meeting on ${NEXT_WEEKDAY}..." | sed "s/^/  /g" >> ${LOG_FILE}
@@ -197,21 +177,12 @@ case ${day_of_week_num} in
     ;;
 esac
 
-if [ "${OSTYPE}" = "FreeBSD" ]; then
-  MONTH=`date -v+${plusdate}d "+%m" | bc`
-  DAY=`date -v+${plusdate}d "+%d" | bc`
-elif [ "${OSTYPE}" = "linux-gnu" ]; then
-  MONTH=`date -d "${plusdate} days" "+%m" | bc`
-  DAY=`date -d "${plusdate} days" "+%d" | bc`
-fi
+MONTH=`eval "date $(generate_diff_option ${plusdate}) +%m" | bc`
+DAY=`eval "date $(generate_diff_option ${plusdate}) +%d" | bc`
 
 DATE_FOR_TITLE="${MONTH}/${DAY}(${day_of_week_EN})"
 DATE_FOR_CONTENTS_JP="${MONTH}/${DAY}(${day_of_week_JP})"
-if [ "${OSTYPE}" = "FreeBSD" ]; then
-  DATE_FOR_CONTENTS_EN=`date -v+${plusdate}d "+%A, %B "`${DAY}
-elif [ "${OSTYPE}" = "linux-gnu" ]; then
-  DATE_FOR_CONTENTS_EN=`date -d "${plusdate} days" "+%A, %B "`${DAY}
-fi
+DATE_FOR_CONTENTS_EN=`"date $(generate_diff_option ${plusdate}) \"+%A, %B \""`${DAY}
 
 SUBJECT="The next Executive Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @${MEETING_PLACE_JP}】"
 SUBJECT_ENC=`echo ${SUBJECT} | nkf --mime --ic=UTF-8 --oc=UTF-8`
