@@ -5,8 +5,8 @@
 # (2017/01/12現在)
 url='https://calendar.google.com/calendar/ical/ja.japanese%23holiday%40group.v.calendar.google.com/public/basic.ics'
 
-/usr/local/bin/curl -s "$url"                           |
-# /usr/bin/curl -s "$url"                           |
+curl -s "$url"                           |
+# /usr/local/bin/curl -s "$url"            |
 sed -n '/^BEGIN:VEVENT/,/^END:VEVENT/p'  |
 awk '/^BEGIN:VEVENT/{                    # iCalendar(RFC 5545)形式から
        rec++;                            # 日付と名称だけ抽出
