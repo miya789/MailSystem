@@ -14,14 +14,14 @@ dir="./"
 TMP_FILENAME="tmp.txt"
 SCHEDULE_FILENAME="schedule.txt"
 SIGNATURE_FILENAME="signature.txt"
-HOLIDAYS_FILENAME="holidays.txt"
-HOLIDAYS_SCRIPT_FILENAME="holidays.sh"
+PUBLIC_HOLIDAYS_FILENAME="public_holidays.txt"
+PUBLIC_HOLIDAYS_SCRIPT_FILENAME="public_holidays.sh"
 LOG_FILENAME="log2.txt"
 TMP="${dir}${TMP_FILENAME}"
 SCHEDULE_FILE="${dir}${SCHEDULE_FILENAME}"
 SIGNATURE_FILE="${dir}${SIGNATURE_FILENAME}"
-HOLIDAYS_FILE="${dir}${HOLIDAYS_FILENAME}"
-HOLIDAYS_SCRIPT_FILE="${dir}${HOLIDAYS_SCRIPT_FILENAME}"
+PUBLIC_HOLIDAYS_FILE="${dir}${PUBLIC_HOLIDAYS_FILENAME}"
+PUBLIC_HOLIDAYS_SCRIPT_FILE="${dir}${PUBLIC_HOLIDAYS_SCRIPT_FILENAME}"
 LOG_FILE=${dir}${LOG_FILENAME}
 pathsendmail="/usr/sbin/sendmail"
 
@@ -38,25 +38,25 @@ generate_diff_option () {
 echo "[MAIL LOG] `date "+%Y/%m/%d-%H:%M:%S"`" >> ${LOG_FILE}
 
 # 1.7 最新休日情報のロード
-${HOLIDAYS_SCRIPT_FILE} > ${HOLIDAYS_FILE}
+${PUBLIC_HOLIDAYS_SCRIPT_FILE} > ${PUBLIC_HOLIDAYS_FILE}
 echo "Holiday File Regenerated.\n" | sed "s/^/  /g" >> ${LOG_FILE}
 
 # 2.1 曜日の判定
 Sat=6
-Sun=7
+Sun=1
 plusdate=0
 day_of_week_num=`date "+%u"`
 date=`date "+%Y%m%d"`
-is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
+is_public_holiday=`grep ${date} ${PUBLIC_HOLIDAYS_FILE}`
 
 # 2.2 本日の詳細
 (
   echo "Today:" | sed "s/^/  /g" | column -t -s,
-  echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g"
+  echo "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}" | sed "s/^/    /g"
 ) >> ${LOG_FILE}
 
 # 2.3 「本日が休日か」判定
-if [ $day_of_week_num -eq $Sat ] || [ $day_of_week_num -eq $Sun ] || [ "${is_holiday}" != "" ]; then
+if [ $day_of_week_num -eq $Sat ] || [ $day_of_week_num -eq $Sun ] || [ "${is_public_holiday}" != "" ]; then
   echo "Today is a holiday, so finished.\n" | sed "s/^/  /g" >> ${LOG_FILE}
   exit 0
 else
@@ -68,18 +68,18 @@ echo "Searching the next weekday..." | sed "s/^/  /g" >> ${LOG_FILE}
 plusdate=$(expr $plusdate + 1)
 day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
 date=`eval "date $(generate_diff_option ${plusdate}) +%Y%m%d"`
-is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
+is_public_holiday=`grep ${date} ${PUBLIC_HOLIDAYS_FILE}`
 echo "${plusdate} day later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
-echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
+echo "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
 
 ## 次の平日に辿り着くまでループ
 while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${holidayflg}" != ""  ]; do
   plusdate=$(expr $plusdate + 1)
   day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
   date=`eval "date $(generate_diff_option ${plusdate}) +%Y%m%d"`
-  is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
+  is_public_holiday=`grep ${date} ${PUBLIC_HOLIDAYS_FILE}`
   echo "${plusdate} days later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
-  echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
+  echo "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
 done
 
 # 2.6 発見した次の翌日の詳細
@@ -87,7 +87,7 @@ NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%m/%d"`
 (
   echo "Finished!" | sed "s/^/  /g"
   echo "The next weekday:" | sed "s/^/  /g" | column -t -s,
-  echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g"
+  echo "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}" | sed "s/^/    /g"
   echo ""
 ) >> ${LOG_FILE}
 
