@@ -64,7 +64,6 @@ else
 fi
 
 # 2.4 次の平日の探索
-# echo "" >> ${LOG_FILE}
 echo "Searching the next weekday..." | sed "s/^/  /g" >> ${LOG_FILE}
 plusdate=$(expr $plusdate + 1)
 day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
@@ -97,7 +96,7 @@ echo "Checking if there is the meeting on ${NEXT_WEEKDAY}..." | sed "s/^/  /g"  
 should_send_mail=0
 COUNT=`grep '' ${SCHEDULE_FILE} | wc -l`
 i=1
-while [ $i -le $COUNT ]; do
+while [ $i -le $COUNT ] && [ $should_send_mail -eq 0 ]; do
   line=`cat $SCHEDULE_FILE | head -$i | tail -1`
   echo "[${i}/${COUNT}]: ${line}" | sed "s/^/    /g" >> ${LOG_FILE}
   DATE=`echo "$line" | cut -d' ' -f1`
