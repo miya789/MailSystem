@@ -1,14 +1,16 @@
 #!/bin/sh -f
 
-export LC_ALL="c date" # for Japanese env
+# 1.1 日本語環境で動作する場合用
+export LC_ALL="c date"
 
-# dir="/home/miyazawa/ExecutiveMail/"
-# dir="${HOME}/ExecutiveMail/"
+# 1.2 ディレクトリ設定
+# dir="${HOME}/ExecutiveMail/" # こっちの方が安全かもしれない
 dir="./"
 
+# 1.3 環境設定の読み込み
 . "${dir}.private_info_sh"
 
-# ファイル名の準備
+# 1.4 ファイル名の準備
 TMP_FILENAME="tmp.txt"
 SCHEDULE_FILENAME="schedule.txt"
 SIGNATURE_FILENAME="signature.txt"
@@ -23,6 +25,7 @@ HOLIDAYS_SCRIPT_FILE="${dir}${HOLIDAYS_SCRIPT_FILENAME}"
 LOG_FILE=${dir}${LOG_FILENAME}
 pathsendmail="/usr/sbin/sendmail"
 
+# 1.5 OSが異なる環境でも動作確認を行う為，日付差分のoptionを生成する関数
 generate_diff_option () {
   if [ "${OSTYPE}" = "FreeBSD" ]; then
     echo "-v+${plusdate}d"
@@ -31,72 +34,76 @@ generate_diff_option () {
   fi
 }
 
-# 日付計算
+# 1.6 ログ用の時間を記録
 (
 echo ""
 echo "[MAIL LOG] `date "+%Y/%m/%d-%H:%M:%S"`"
 ) >> ${LOG_FILE}
 
-# 休日データのロード
+# 1.7 最新休日情報のロード
 ${HOLIDAYS_SCRIPT_FILE} > ${HOLIDAYS_FILE}
 (
   echo "Holiday File Regenerated." | sed "s/^/  /g"
   echo ""
 ) >> ${LOG_FILE}
 
-# 曜日の判定
+# 2.1 曜日の判定
 Sat=6
-Sun=7
+Sun=1
 plusdate=0
 day_of_week_num=`date "+%u"`
 date=`date "+%Y%m%d"`
 is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
 
+# 2.2 本日の詳細
 (
   echo "Today:" | sed "s/^/  /g" | column -t -s,
   echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g"
 ) >> ${LOG_FILE}
 
+# 2.3 「本日が休日か」判定
 if [ $day_of_week_num -eq $Sat ] || [ $day_of_week_num -eq $Sun ] || [ "${is_holiday}" != "" ]; then
   echo "Today is a holiday, so finished." | sed "s/^/  /g" >> ${LOG_FILE}
   exit 0
 else
   echo "Today is not a holiday, so continuing..." | sed "s/^/  /g" >> ${LOG_FILE}
-  echo "" >> ${LOG_FILE}
+fi
 
-  # 次の平日の調査
-  echo "Searching the next weekday..." | sed "s/^/  /g" >> ${LOG_FILE}
+# 2.4 次の平日の探索
+# echo "" >> ${LOG_FILE}
+echo "\nSearching the next weekday..." | sed "s/^/  /g" >> ${LOG_FILE}
+plusdate=$(expr $plusdate + 1)
+day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
+date=`eval "date $(generate_diff_option ${plusdate}) +%Y%m%d"`
+is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
+echo "${plusdate} day later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
+echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
+
+## 次の平日に辿り着くまでループ
+while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${holidayflg}" != ""  ]; do
   plusdate=$(expr $plusdate + 1)
   day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
   date=`eval "date $(generate_diff_option ${plusdate}) +%Y%m%d"`
   is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
-  echo "${plusdate} day later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
+  echo "${plusdate} days later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
   echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
+done
 
-  # 次の平日に辿り着く迄逃れられない！
-  while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${holidayflg}" != ""  ]; do
-    plusdate=$(expr $plusdate + 1)
-    day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
-    date=`eval "date $(generate_diff_option ${plusdate}) +%Y%m%d"`
-    is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
-    echo "${plusdate} days later:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
-    echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
-  done
-fi
-
+# 2.5 探索の最終結果
 (
   echo "Finished!" | sed "s/^/  /g"
   echo "The next weekday:" | sed "s/^/  /g" | column -t -s,
   echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g"
 ) >> ${LOG_FILE}
 
+# 2.6 発見した次の翌日の詳細
 NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%m/%d"`
 (
   echo ""
   echo "Checking if there is the meeting on ${NEXT_WEEKDAY}..." | sed "s/^/  /g"
 ) >> ${LOG_FILE}
 
-# メール送信判定
+# 3.1 該当日付の予定確認
 should_send_mail=0
 COUNT=`grep '' ${SCHEDULE_FILE} | wc -l`
 i=1
@@ -114,15 +121,15 @@ while [ $i -le $COUNT ]; do
   i=$(expr $i + 1)
 done
 
+# 3.2 予定の有無を判定
 if [ $should_send_mail -eq 0 ]; then
 	echo "There is no meeting on ${DATE}." >> ${LOG_FILE}
 	exit 0
 fi
 
-# 文面作成用変数設定
+# 4.1 場所の表記変換
 MEETING_PLACE_EN=$MEETING_PLACE
 MEETING_PLACE_JP=$MEETING_PLACE
-
 case $MEETING_PLACE in
 	113 )
 		MEETING_PLACE_EN="Bldg. 3 Room 113 (Seminar 3)"
@@ -155,6 +162,7 @@ case $MEETING_PLACE in
 		;;
 esac
 
+# 4.2 曜日の表記変換
 case ${day_of_week_num} in
 	1 )
 		day_of_week_JP="月"
@@ -186,6 +194,7 @@ case ${day_of_week_num} in
     ;;
 esac
 
+# 4.3 日付の表記用意
 MONTH=`eval "date $(generate_diff_option ${plusdate}) +%m" | bc`
 DAY=`eval "date $(generate_diff_option ${plusdate}) +%d" | bc`
 
@@ -193,18 +202,23 @@ DATE_FOR_TITLE="${MONTH}/${DAY}(${day_of_week_EN})"
 DATE_FOR_CONTENTS_JP="${MONTH}/${DAY}(${day_of_week_JP})"
 DATE_FOR_CONTENTS_EN=`eval "date "$(generate_diff_option ${plusdate})" +'%A, %B'"`${DAY}
 
+# 4.4 件名の作成及びエンコード
 SUBJECT="The next Executive Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @${MEETING_PLACE_JP}】"
 SUBJECT_ENC=`echo ${SUBJECT} | nkf --mime --ic=UTF-8 --oc=UTF-8`
 
-# メール文面ファイル(temp.txt)執筆
+# 4.5 文面ファイル(temp.txt)の用意
 if [ -e ${TMP} ]; then
   rm -rf ${TMP}
 fi
 touch ${TMP}
+
+# 4.5 文面ファイル(tmp.txt)の執筆
 (
   echo "From: ${from}"
   echo "To: ${to}"
-  # echo "Bcc: ${bcc}"
+  if [ "$BCC" != "" ]; then
+    echo "Bcc: ${BCC}"
+  fi
   echo "Subject: ${SUBJECT_ENC}"
   echo "Content-Type: text/plain; charset=UTF-8"
   echo "Content-Transfer-Encoding: 8bit"
@@ -235,11 +249,11 @@ touch ${TMP}
   cat ${SIGNATURE_FILE}
 ) >> ${TMP}
 
-# メール文面の送信
+# 4.6 メールの送信
 # cat ${TMP} | $SENDMAIL_PATH -i -f ${from} ${to} # BCC使わなければこっちが安全
 cat ${TMP} | $SENDMAIL_PATH -i -t
 
-# メール文面のログ吐き出し
+# 4.7 文面ファイル(tmp.txt)をログへ吐き出し
 (
   echo ""
   echo "The sent mail is as follows..." | sed "s/^/  /g"
@@ -247,5 +261,5 @@ cat ${TMP} | $SENDMAIL_PATH -i -t
   echo ""
 ) >> ${LOG_FILE}
 
-# メール文面ファイルの削除
+# 4.8 文面ファイル(tmp.txt)の削除
 rm -f ${TMP}
