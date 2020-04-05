@@ -1,0 +1,14 @@
+#!/bin/sh -f
+
+# PAY ATTENTION !!!
+## private information should be written here.
+
+# your profile
+export GRADE="M2"
+export NAME_JP="<your name in Japanese>" # e.g.) "宮澤"
+export NAME_EN="<your name in English>"  # e.g.) "Miyazawa"
+
+export FROM="<mail address>"
+export TO="<mail address>"
+# export TO="<mail address>"
+# export BCC="<mail address>, <mail address>, <mail address>"
