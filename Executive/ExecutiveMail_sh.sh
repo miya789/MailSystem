@@ -4,7 +4,7 @@
 export LC_ALL="c date"
 
 # 1.2 ディレクトリ設定
-dir="${HOME}/ExecutiveMail"
+dir="${HOME}/ExecutiveMail/"
 
 # 1.3 環境設定の読み込み
 . "${dir}.private_info_sh"
@@ -96,7 +96,7 @@ COUNT=`grep '' ${SCHEDULE_FILE} | wc -l`
 i=1
 while [ $i -le $COUNT ] && [ $should_send_mail -eq 0 ]; do
   line=`cat $SCHEDULE_FILE | head -$i | tail -1`
-  printf "    [${i}/${COUNT}]: ${line}\n">> ${LOG_FILE}
+  printf "[${i}/${COUNT}]: ${line}\n" | sed "s/^/    /g">> ${LOG_FILE}
   DATE=`echo "$line" | cut -d' ' -f1`
   if [ $DATE = $NEXT_WEEKDAY ]; then
     MEETING_TIME=`echo "$line" | cut -d' ' -f2`
