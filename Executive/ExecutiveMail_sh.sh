@@ -35,21 +35,15 @@ generate_diff_option () {
 }
 
 # 1.6 ログ用の時間を記録
-(
-echo ""
-echo "[MAIL LOG] `date "+%Y/%m/%d-%H:%M:%S"`"
-) >> ${LOG_FILE}
+echo "[MAIL LOG] `date "+%Y/%m/%d-%H:%M:%S"`" >> ${LOG_FILE}
 
 # 1.7 最新休日情報のロード
 ${HOLIDAYS_SCRIPT_FILE} > ${HOLIDAYS_FILE}
-(
-  echo "Holiday File Regenerated." | sed "s/^/  /g"
-  echo ""
-) >> ${LOG_FILE}
+echo "Holiday File Regenerated.\n" | sed "s/^/  /g" >> ${LOG_FILE}
 
 # 2.1 曜日の判定
 Sat=6
-Sun=1
+Sun=7
 plusdate=0
 day_of_week_num=`date "+%u"`
 date=`date "+%Y%m%d"`
@@ -63,15 +57,15 @@ is_holiday=`grep ${date} ${HOLIDAYS_FILE}`
 
 # 2.3 「本日が休日か」判定
 if [ $day_of_week_num -eq $Sat ] || [ $day_of_week_num -eq $Sun ] || [ "${is_holiday}" != "" ]; then
-  echo "Today is a holiday, so finished." | sed "s/^/  /g" >> ${LOG_FILE}
+  echo "Today is a holiday, so finished.\n" | sed "s/^/  /g" >> ${LOG_FILE}
   exit 0
 else
-  echo "Today is not a holiday, so continuing..." | sed "s/^/  /g" >> ${LOG_FILE}
+  echo "Today is not a holiday, so continuing...\n" | sed "s/^/  /g" >> ${LOG_FILE}
 fi
 
 # 2.4 次の平日の探索
 # echo "" >> ${LOG_FILE}
-echo "\nSearching the next weekday..." | sed "s/^/  /g" >> ${LOG_FILE}
+echo "Searching the next weekday..." | sed "s/^/  /g" >> ${LOG_FILE}
 plusdate=$(expr $plusdate + 1)
 day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
 date=`eval "date $(generate_diff_option ${plusdate}) +%Y%m%d"`
@@ -89,21 +83,17 @@ while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${h
   echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
 done
 
-# 2.5 探索の最終結果
+# 2.6 発見した次の翌日の詳細
+NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%m/%d"`
 (
   echo "Finished!" | sed "s/^/  /g"
   echo "The next weekday:" | sed "s/^/  /g" | column -t -s,
   echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g"
-) >> ${LOG_FILE}
-
-# 2.6 発見した次の翌日の詳細
-NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%m/%d"`
-(
   echo ""
-  echo "Checking if there is the meeting on ${NEXT_WEEKDAY}..." | sed "s/^/  /g"
 ) >> ${LOG_FILE}
 
 # 3.1 該当日付の予定確認
+echo "Checking if there is the meeting on ${NEXT_WEEKDAY}..." | sed "s/^/  /g"  >> ${LOG_FILE}
 should_send_mail=0
 COUNT=`grep '' ${SCHEDULE_FILE} | wc -l`
 i=1
@@ -123,13 +113,11 @@ done
 
 # 3.2 予定の有無を判定
 if [ $should_send_mail -eq 0 ]; then
-	echo "There is no meeting on ${DATE}." >> ${LOG_FILE}
+	echo "There is no meeting on ${DATE}.\n" >> ${LOG_FILE}
 	exit 0
 fi
 
-# 4.1 場所の表記変換
-MEETING_PLACE_EN=$MEETING_PLACE
-MEETING_PLACE_JP=$MEETING_PLACE
+# 3.3 場所の表記変換
 case $MEETING_PLACE in
 	113 )
 		MEETING_PLACE_EN="Bldg. 3 Room 113 (Seminar 3)"
@@ -155,14 +143,14 @@ case $MEETING_PLACE in
 		MEETING_PLACE_EN="Bldg. 13"
 		MEETING_PLACE_JP="13号館一般実験室"
 		;;
-	default )
+	* )
 		MEETING_PLACE_EN=$MEETING_PLACE
 		MEETING_PLACE_JP=$MEETING_PLACE
-		echo "Unusual place: ${MEETING_PLACE}" >> ${LOG_FILE}
+		echo "Unusual place: ${MEETING_PLACE}" | sed "s/^/  /g" >> ${LOG_FILE}
 		;;
 esac
 
-# 4.2 曜日の表記変換
+# 3.4 曜日の表記変換
 case ${day_of_week_num} in
 	1 )
 		day_of_week_JP="月"
@@ -192,9 +180,13 @@ case ${day_of_week_num} in
 		day_of_week_JP="日"
 		day_of_week_EN="Sun"
     ;;
+  * )
+		echo "The day of week(No.${day_of_week_num}) is invalid error." | sed "s/^/  /g" >> ${LOG_FILE}
+    exit 1
+		;;
 esac
 
-# 4.3 日付の表記用意
+# 4.1 日付の表記用意
 MONTH=`eval "date $(generate_diff_option ${plusdate}) +%m" | bc`
 DAY=`eval "date $(generate_diff_option ${plusdate}) +%d" | bc`
 
@@ -202,17 +194,17 @@ DATE_FOR_TITLE="${MONTH}/${DAY}(${day_of_week_EN})"
 DATE_FOR_CONTENTS_JP="${MONTH}/${DAY}(${day_of_week_JP})"
 DATE_FOR_CONTENTS_EN=`eval "date "$(generate_diff_option ${plusdate})" +'%A, %B'"`${DAY}
 
-# 4.4 件名の作成及びエンコード
+# 4.2 件名の作成及びエンコード
 SUBJECT="The next Executive Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @${MEETING_PLACE_JP}】"
 SUBJECT_ENC=`echo ${SUBJECT} | nkf --mime --ic=UTF-8 --oc=UTF-8`
 
-# 4.5 文面ファイル(temp.txt)の用意
+# 4.3 文面ファイル(temp.txt)の用意
 if [ -e ${TMP} ]; then
   rm -rf ${TMP}
 fi
 touch ${TMP}
 
-# 4.5 文面ファイル(tmp.txt)の執筆
+# 4.4 文面ファイル(tmp.txt)の執筆
 (
   echo "From: ${from}"
   echo "To: ${to}"
@@ -249,11 +241,11 @@ touch ${TMP}
   cat ${SIGNATURE_FILE}
 ) >> ${TMP}
 
-# 4.6 メールの送信
+# 4.5 メールの送信
 # cat ${TMP} | $SENDMAIL_PATH -i -f ${from} ${to} # BCC使わなければこっちが安全
 cat ${TMP} | $SENDMAIL_PATH -i -t
 
-# 4.7 文面ファイル(tmp.txt)をログへ吐き出し
+# 4.6 文面ファイル(tmp.txt)をログへ吐き出し
 (
   echo ""
   echo "The sent mail is as follows..." | sed "s/^/  /g"
@@ -261,5 +253,5 @@ cat ${TMP} | $SENDMAIL_PATH -i -t
   echo ""
 ) >> ${LOG_FILE}
 
-# 4.8 文面ファイル(tmp.txt)の削除
+# 4.7 文面ファイル(tmp.txt)の削除
 rm -f ${TMP}
