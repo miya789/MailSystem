@@ -4,7 +4,7 @@
 export LC_ALL="c date"
 
 # 1.2 ディレクトリ設定
-dir="${HOME}/ExecutiveMail/"
+dir="${HOME}/MailSystem/Executive/"
 
 # 1.3 環境設定の読み込み
 . "${dir}.private_info_sh"
