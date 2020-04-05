@@ -112,77 +112,77 @@ done
 
 # 3.2 予定の有無を判定
 if [ $should_send_mail -eq 0 ]; then
-	echo "There is no meeting on ${DATE}.\n" >> ${LOG_FILE}
-	exit 0
+  echo "There is no meeting on ${DATE}.\n" >> ${LOG_FILE}
+  exit 0
 fi
 
 # 3.3 場所の表記変換
 case $MEETING_PLACE in
-	113 )
-		MEETING_PLACE_EN="Bldg. 3 Room 113 (Seminar 3)"
-		MEETING_PLACE_JP="工学部3号館 113号室 (電気系セミナー室3) "
-		;;
-	114 )
-		MEETING_PLACE_EN="Bldg. 3 Room 114 (Seminar 2)"
-		MEETING_PLACE_JP="工学部3号館 114号室 (電気系セミナー室2) "
-		;;
-	128 )
-		MEETING_PLACE_EN="Bldg. 3 Room 128 (Seminar 1)"
-		MEETING_PLACE_JP="工学部3号館128号室 (電気系セミナー室1) "
-		;;
-	VDEC306 )
-		MEETING_PLACE_EN="VDEC 306"
-		MEETING_PLACE_JP="VDEC 306"
-		;;
-	VDEC402 )
-		MEETING_PLACE_EN="VDEC 402"
-		MEETING_PLACE_JP="VDEC 402"
+  113 )
+    MEETING_PLACE_EN="Bldg. 3 Room 113 (Seminar 3)"
+    MEETING_PLACE_JP="工学部3号館 113号室 (電気系セミナー室3) "
     ;;
-	Bldg13 )
-		MEETING_PLACE_EN="Bldg. 13"
-		MEETING_PLACE_JP="13号館一般実験室"
-		;;
-	* )
-		MEETING_PLACE_EN=$MEETING_PLACE
-		MEETING_PLACE_JP=$MEETING_PLACE
-		echo "Unusual place: ${MEETING_PLACE}" | sed "s/^/  /g" >> ${LOG_FILE}
-		;;
+  114 )
+    MEETING_PLACE_EN="Bldg. 3 Room 114 (Seminar 2)"
+    MEETING_PLACE_JP="工学部3号館 114号室 (電気系セミナー室2) "
+    ;;
+  128 )
+    MEETING_PLACE_EN="Bldg. 3 Room 128 (Seminar 1)"
+    MEETING_PLACE_JP="工学部3号館128号室 (電気系セミナー室1) "
+    ;;
+  VDEC306 )
+    MEETING_PLACE_EN="VDEC 306"
+    MEETING_PLACE_JP="VDEC 306"
+    ;;
+  VDEC402 )
+    MEETING_PLACE_EN="VDEC 402"
+    MEETING_PLACE_JP="VDEC 402"
+    ;;
+  Bldg13 )
+    MEETING_PLACE_EN="Bldg. 13"
+    MEETING_PLACE_JP="13号館一般実験室"
+    ;;
+  * )
+    MEETING_PLACE_EN=$MEETING_PLACE
+    MEETING_PLACE_JP=$MEETING_PLACE
+    echo "Unusual place: ${MEETING_PLACE}" | sed "s/^/  /g" >> ${LOG_FILE}
+    ;;
 esac
 
 # 3.4 曜日の表記変換
 case ${day_of_week_num} in
-	1 )
-		day_of_week_JP="月"
-		day_of_week_EN="Mon"
+  1 )
+    day_of_week_JP="月"
+    day_of_week_EN="Mon"
     ;;
-	2 )
-		day_of_week_JP="火"
-		day_of_week_EN="Tue"
+  2 )
+    day_of_week_JP="火"
+    day_of_week_EN="Tue"
     ;;
-	3 )
-		day_of_week_JP="水"
-		day_of_week_EN="Wed"
+  3 )
+    day_of_week_JP="水"
+    day_of_week_EN="Wed"
     ;;
-	4 )
-		day_of_week_JP="木"
-		day_of_week_EN="Thu"
+  4 )
+    day_of_week_JP="木"
+    day_of_week_EN="Thu"
     ;;
-	5 )
-		day_of_week_JP="金"
-		day_of_week_EN="Fri"
+  5 )
+    day_of_week_JP="金"
+    day_of_week_EN="Fri"
     ;;
-	6 )
-		day_of_week_JP="土"
-		day_of_week_EN="Sat"
+  6 )
+    day_of_week_JP="土"
+    day_of_week_EN="Sat"
     ;;
-	7 )
-		day_of_week_JP="日"
-		day_of_week_EN="Sun"
+  7 )
+    day_of_week_JP="日"
+    day_of_week_EN="Sun"
     ;;
   * )
-		echo "The day of week(No.${day_of_week_num}) is invalid error." | sed "s/^/  /g" >> ${LOG_FILE}
+    echo "The day of week(No.${day_of_week_num}) is invalid error." | sed "s/^/  /g" >> ${LOG_FILE}
     exit 1
-		;;
+    ;;
 esac
 
 # 4.1 日付の表記用意
