@@ -11,8 +11,8 @@
 │   ├── README.txt
 │   ├── ExecutiveMail.sh
 │   ├── ExecutiveMail_sh.sh
-│   ├── holidays.sh
-│   ├── (holidays.txt)
+│   ├── public_holidays.sh
+│   ├── (public_holidays.txt)
 │   ├── (log.txt): ログ
 │   ├── (schedule.txt): 予定ファイル
 │   ├── (signature.txt)
@@ -21,8 +21,8 @@
     ├── (.private_info): 環境設定ファイル
     ├── README.txt
     ├── TeamMEMSmail.sh
-    ├── holidays.sh
-    ├── (holidays.txt)
+    ├── public_holidays.sh
+    ├── (public_holidays.txt)
     ├── (log.txt): ログ
     ├── (schedule.txt): 予定ファイル
     ├── (signature.txt)
@@ -49,11 +49,11 @@
       - これ以外の文字列の場合は、ここに書いたものがそのまま日本語でも英語でも使われる。
       - Executivemail.sh を読めばわかるが、英語と日本語それぞれの場所文字列を
   - 出すためのキーワードとなっている。他の場所が必要な場合は、該当箇所を追加すればよい。
-  - holidays.sh
+  - public_holidays.sh
     - 祝日取得用のスクリプト。
   - README.txt		(このファイル)
-  - (holidays.txt)
-    - holidays.shで自動生成される祝日データ。コピー時はなくて良い。
+  - (public_holidays.txt)
+    - public_holidays.shで自動生成される祝日データ。コピー時はなくて良い。
 
 ## 使用手順
 ### セットアップ
