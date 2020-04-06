@@ -2,9 +2,7 @@
 
 setenv LC_ALL "c date" # for Japanese env
 
-# set dir="/home/miyazawa/ExecutiveMail/"
-# set dir="${HOME}/ExecutiveMail/"
-set dir="./"
+set dir="${HOME}/MailSystem/Executive/"
 
 echo "Loading environment file..."
 source "${dir}.private_info_csh"
