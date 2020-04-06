@@ -7,7 +7,7 @@ setenv LC_ALL "c date" # for Japanese env
 set dir="./"
 
 echo "Loading environment file..."
-source "${dir}.private_info"
+source "${dir}.private_info_csh"
 
 # ファイル名の準備
 set TMP_FILENAME                    = "tmp.txt"
