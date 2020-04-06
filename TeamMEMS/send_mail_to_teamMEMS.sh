@@ -22,7 +22,7 @@ SIGNATURE_FILE="${dir}${SIGNATURE_FILENAME}"
 PUBLIC_HOLIDAYS_FILE="${dir}${PUBLIC_HOLIDAYS_FILENAME}"
 PUBLIC_HOLIDAYS_SCRIPT_FILE="${dir}${PUBLIC_HOLIDAYS_SCRIPT_FILENAME}"
 LOG_FILE=${dir}${LOG_FILENAME}
-pathsendmail="/usr/sbin/sendmail"
+SENDMAIL_PATH="/usr/sbin/sendmail"
 
 # 1.5 OSが異なる環境でも動作確認を行う為，日付差分のoptionを生成する関数
 generate_diff_option () {
