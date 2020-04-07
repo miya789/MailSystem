@@ -214,9 +214,9 @@ if (-e ${TMP}) then
 endif
 touch ${TMP}
 
-echo "From: ${from}" >> ${TMP}
-echo "To: ${to}" >> ${TMP}
-# echo "Bcc: ${bcc}" >> ${TMP}
+echo "From: ${FROM}" >> ${TMP}
+echo "To: ${TO}" >> ${TMP}
+# echo "Bcc: ${BCC}" >> ${TMP}
 echo "Subject: ${SUBJECT_ENC}" >> ${TMP}
 echo "Content-Type: text/plain; charset=UTF-8" >> ${TMP}
 echo "Content-Transfer-Encoding: 8bit" >> ${TMP}
