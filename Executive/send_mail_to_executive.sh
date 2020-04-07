@@ -26,9 +26,9 @@ SENDMAIL_PATH="/usr/sbin/sendmail"
 
 # 1.5 OSが異なる環境でも動作確認を行う為，日付差分のoptionを生成する関数
 generate_diff_option () {
-  if [ "${OSTYPE}" = "FreeBSD" ]; then
+  if [ `uname` = "FreeBSD" ]; then
     echo "-v+${plusdate}d"
-  elif [ "${OSTYPE}" = "linux-gnu" ]; then
+  elif [ `uname` = "Linux" ]; then
     echo "-d \"${plusdate} days\""
   fi
 }
