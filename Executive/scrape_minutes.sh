@@ -13,7 +13,13 @@ echo "TeamMEMS: ${TeamMEMS}"
 echo "Executive: ${Executive}"
 
 curl --socks5 $PROXY $TeamMEMS --digest -u $USER:$PASSWORD > teamMEMS.html
-next_url=`grep "2020/04/16" teamMEMS.html | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | tail -1`
+
+####################################################################################################################
+#                                       ここで，schdule.csvを元に，議事録を作るべきdateを作成                          #
+####################################################################################################################
+date=`date +%Y/%m/%d` # 危険なので暫定的に
+
+next_url=`grep "${date}" teamMEMS.html | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | tail -1`
 sleep 1
 
 curl --socks5 $PROXY $next_url --digest -u $USER:$PASSWORD > teamMEMS_contents.html
