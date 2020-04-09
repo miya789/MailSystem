@@ -15,4 +15,5 @@ TeamMEMS/signature.txt
 TeamMEMS/tmp.txt
 
 # test code
-./test_*
+test/
+# ./test_**
