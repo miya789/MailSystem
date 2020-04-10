@@ -9,18 +9,16 @@ file="config/meeting_schedule_2020_3.csv"
 SCHEDULE_TEAMMEMS_FILE="schedule_teamMEMS.txt"
 SCHEDULE_EXECUTIVE_FILE="schedule_executive.txt"
 
-COUNT=`grep '' ${file} | wc -l | awk '{printf "%d", $1}'`
-
 if [ -e ${SCHEDULE_EXECUTIVE_FILE} ]; then
   rm -rf ${SCHEDULE_EXECUTIVE_FILE}
 fi
 touch ${SCHEDULE_EXECUTIVE_FILE}
-
 if [ -e ${SCHEDULE_TEAMMEMS_FILE} ]; then
   rm -rf ${SCHEDULE_TEAMMEMS_FILE}
 fi
 touch ${SCHEDULE_TEAMMEMS_FILE}
 
+COUNT=`grep '' ${file} | wc -l | awk '{printf "%d", $1}'`
 for i in `seq ${COUNT}`; do
   line=`cat ${file} | head -$i | tail -1`
   Subject=`echo ${line}   | cut -d"," -f1`
@@ -30,7 +28,7 @@ for i in `seq ${COUNT}`; do
   EndTime=`echo ${line}   | cut -d"," -f5`
   Location=`echo ${line}  | cut -d"," -f6`
 
-  # printed_line="${StartDate} ${StartTime} ${Location} ${ZOOM_URL"
+  # printed_line="${StartDate} ${StartTime} ${Location} ${ZOOM_URL}"
 
   if [ "${Subject}" = "Subject" ]; then
     echo "This is a header..."
