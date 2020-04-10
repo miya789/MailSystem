@@ -1,4 +1,4 @@
-#!/bin/sh -f
+#!/bin/sh
 
 # 1.1 日本語環境で動作する場合用
 export LC_ALL="c date"
