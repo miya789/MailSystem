@@ -96,9 +96,9 @@ echo "The next weekday:" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE}
 echo "day of week(No.): ${day_of_week_num}, date: ${date}, is_holiday: ${is_holiday}" | sed "s/^/    /g" >> ${LOG_FILE}
 
 if ( "${OSTYPE}" == "FreeBSD" ) then
-  set NEXT_WEEKDAY=`date -v+${plusdate}d "+%m/%d"`
+  set NEXT_WEEKDAY=`date -v+${plusdate}d "+%Y/%m/%d"`
 else if ( "${OSTYPE}" == "linux-gnu" ) then
-  set NEXT_WEEKDAY=`date -d "${plusdate} days" "+%m/%d"`
+  set NEXT_WEEKDAY=`date -d "${plusdate} days" "+%Y/%m/%d"`
 endif
 
 echo "" >> ${LOG_FILE}
@@ -110,11 +110,11 @@ set COUNT=`grep '' ${SCHEDULE_FILE} | wc -l`
 while ( $i <= $COUNT )
   set line=`cat $SCHEDULE_FILE | head -$i | tail -1`
   echo "[${i}/${COUNT}]: ${line}" | sed "s/^/    /g" >> ${LOG_FILE}
-  set DATE=`echo "$line" | cut -d' ' -f1`
+  set DATE=`echo "$line" | cut -d',' -f1`
   if ( $DATE == $NEXT_WEEKDAY ) then
-    set MEETING_TIME=`echo "$line" | cut -d' ' -f2`
-    set MEETING_PLACE=`echo "$line" | cut -d' ' -f3`
-    set MEETING_ZOOM_URL=`echo "$line" | cut -d' ' -f4`
+    set MEETING_TIME=`echo "$line" | cut -d',' -f2`
+    set MEETING_PLACE=`echo "$line" | cut -d',' -f3`
+    set MEETING_ZOOM_URL=`echo "$line" | cut -d',' -f4`
     echo "We have the meeting from ${MEETING_TIME} on ${NEXT_WEEKDAY} at ${MEETING_PLACE}." | sed "s/^/  /g" >> ${LOG_FILE}
     @ should_send_mail=1
   endif

@@ -82,7 +82,7 @@ while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${h
 done
 
 # 2.6 発見した次の翌日の詳細
-NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%m/%d"`
+NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%Y/%m/%d"`
 (
   printf "Finished!\n" | sed "s/^/  /g"
   printf "The next weekday:\n" | sed "s/^/  /g" | column -t -s,
@@ -97,11 +97,11 @@ i=1
 while [ $i -le $COUNT ] && [ $should_send_mail -eq 0 ]; do
   line=`cat $SCHEDULE_FILE | head -$i | tail -1`
   printf "[${i}/${COUNT}]: ${line}\n" | sed "s/^/    /g">> ${LOG_FILE}
-  DATE=`echo "$line" | cut -d' ' -f1`
+  DATE=`echo "$line" | cut -d',' -f1`
   if [ $DATE = $NEXT_WEEKDAY ]; then
-    MEETING_TIME=`echo "$line" | cut -d' ' -f2`
-    MEETING_PLACE=`echo "$line" | cut -d' ' -f3`
-    MEETING_ZOOM_URL=`echo "$line" | cut -d' ' -f4`
+    MEETING_TIME=`echo "$line" | cut -d',' -f2`
+    MEETING_PLACE=`echo "$line" | cut -d',' -f3`
+    MEETING_ZOOM_URL=`echo "$line" | cut -d',' -f4`
     printf "We have the meeting from ${MEETING_TIME} on ${DATE} at ${MEETING_PLACE}.\n" | sed "s/^/  /g" >> ${LOG_FILE}
     should_send_mail=1
   fi
