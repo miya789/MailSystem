@@ -110,7 +110,7 @@ done
 
 # 3.2 予定の有無を判定
 if [ $should_send_mail -eq 0 ]; then
-  printf "There is no meeting on ${DATE}.\n\n" >> ${LOG_FILE}
+  printf "There is no meeting on ${NEXT_WEEKDAY}.\n\n" >> ${LOG_FILE}
   exit 0
 fi
 
