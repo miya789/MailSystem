@@ -9,7 +9,7 @@ source "${dir}../config/.private_info.csh"
 
 # ファイル名の準備
 set TMP_FILENAME                    = "tmp.txt"
-set SCHEDULE_FILENAME               = "schedule.txt"
+set SCHEDULE_FILENAME               = "../config/executive_meetings.txt"
 set SIGNATURE_FILENAME              = "signature.txt"
 set PUBLIC_HOLIDAYS_FILENAME        = "public_holidays.txt"
 set PUBLIC_HOLIDAYS_SCRIPT          = "public_holidays.sh"

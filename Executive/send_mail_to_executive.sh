@@ -11,7 +11,7 @@ dir="${HOME}/MailSystem/Executive/"
 
 # 1.4 ファイル名の準備
 TMP_FILENAME="tmp.txt"
-SCHEDULE_FILENAME="schedule.txt"
+SCHEDULE_FILENAME="../config/executive_meetings.txt"
 SIGNATURE_FILENAME="signature.txt"
 PUBLIC_HOLIDAYS_FILENAME="public_holidays.txt"
 PUBLIC_HOLIDAYS_SCRIPT_FILENAME="public_holidays.sh"
