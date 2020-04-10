@@ -204,7 +204,7 @@ touch ${TMP}
 # 4.4 文面ファイル(tmp.txt)の執筆
 (
   echo "From: ${FROM}"
-  echo "To: ${TO_TEST}"
+  echo "To: ${TO_TEAMMEMS}"
   # echo "Bcc: ${BCC_TEST}"
   echo "Subject: ${SUBJECT_ENC}"
   echo "Content-Type: text/plain; charset=UTF-8"
@@ -237,7 +237,7 @@ touch ${TMP}
 ) >> ${TMP}
 
 # 4.5 メールの送信
-cat ${TMP} | $SENDMAIL_PATH -i -f ${FROM} ${TO_TEST}
+cat ${TMP} | $SENDMAIL_PATH -i -f ${FROM} ${TO_TEAMMEMS}
 
 # 4.6 文面ファイル(tmp.txt)をログへ吐き出し
 (

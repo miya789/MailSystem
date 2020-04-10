@@ -204,9 +204,9 @@ touch ${TMP}
 # 4.4 文面ファイル(tmp.txt)の執筆
 (
   echo "From: ${FROM}"
-  echo "To: ${EXECUTIVE}"
-  if [ "$EXECUTIVE_BCC" != "" ]; then
-    echo "Bcc: ${EXECUTIVE_BCC}"
+  echo "To: ${TO_EXECUTIVE}"
+  if [ "$BCC_EXECUTIVE" != "" ]; then
+    echo "Bcc: ${BCC_EXECUTIVE}"
   fi
   echo "Subject: ${SUBJECT_ENC}"
   echo "Content-Type: text/plain; charset=UTF-8"
@@ -239,7 +239,7 @@ touch ${TMP}
 ) >> ${TMP}
 
 # 4.5 メールの送信
-# cat ${TMP} | $SENDMAIL_PATH -i -f ${FROM} ${EXECUTIVE} # Bcc使わなければこっちが安全
+# cat ${TMP} | $SENDMAIL_PATH -i -f ${FROM} ${TO_EXECUTIVE} # Bcc使わなければこっちが安全
 cat ${TMP} | $SENDMAIL_PATH -i -t
 
 # 4.6 文面ファイル(tmp.txt)をログへ吐き出し
