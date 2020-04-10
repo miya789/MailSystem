@@ -5,7 +5,7 @@ setenv LC_ALL "c date" # for Japanese env
 set dir="${HOME}/MailSystem/Executive/"
 
 echo "Loading environment file..."
-source "${dir}.private_info_csh"
+source "${dir}../config/.private_info.csh"
 
 # ファイル名の準備
 set TMP_FILENAME                    = "tmp.txt"

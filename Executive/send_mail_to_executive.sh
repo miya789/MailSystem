@@ -7,7 +7,7 @@ export LC_ALL="c date"
 dir="${HOME}/MailSystem/Executive/"
 
 # 1.3 環境設定の読み込み
-. "${dir}.private_info"
+. "${dir}../config/.private_info.sh"
 
 # 1.4 ファイル名の準備
 TMP_FILENAME="tmp.txt"
