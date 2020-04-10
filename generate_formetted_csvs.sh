@@ -84,7 +84,6 @@ for i in `seq ${COUNT}`; do
     echo $line >> $TEAMMEMS_MEETINGS_FILE_EN
     echo $line >> $TEAMMEMS_MEETINGS_FILE_JP
     echo $line >> $OTHER_SCHEDULES_FILE
-    echo $line >> $LAB_SCHEDULES_FORMATTED_FILE
     continue;
   fi
 
