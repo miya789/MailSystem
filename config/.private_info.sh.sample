@@ -10,8 +10,10 @@ export NAME_EN="<your name in English>"   # e.g.) "Miyazawa"
 export FROM="<mail address>"              # e.g.) "hoge@example.com"
 
 # destination
-export TO_TEST="<mail address>"                                   # for test
+## for test environment
+export TO_TEST="<mail address>"
+export BCC_TEST="<mail address>"
+## for production environment
 export TO_TEAMMEMS="<mail address>"
 export TO_EXECUTIVE="<mail address>"
-export BCC_TEST="<mail address>, <mail address>, <mail address>"  # for test
-export BCC_EXECUTIVE="<mail address>, <mail address>, <mail address>"
+export BCC_EXECUTIVE="<mail address>"

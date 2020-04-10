@@ -16,5 +16,8 @@ TeamMEMS/tmp.txt
 
 # test code
 test/
+
+# config
 config/*
-!config/.private_info.sample
+!config/.private_info.sh.sample
+!config/.private_info.csh.sample
