@@ -204,10 +204,8 @@ touch ${TMP}
 # 4.4 文面ファイル(tmp.txt)の執筆
 (
   echo "From: ${FROM}"
-  echo "To: ${TO}"
-  if [ "$BCC" != "" ]; then
-    echo "Bcc: ${BCC}"
-  fi
+  echo "To: ${TO_TEST}"
+  # echo "Bcc: ${BCC_TEST}"
   echo "Subject: ${SUBJECT_ENC}"
   echo "Content-Type: text/plain; charset=UTF-8"
   echo "Content-Transfer-Encoding: 8bit"
@@ -239,8 +237,7 @@ touch ${TMP}
 ) >> ${TMP}
 
 # 4.5 メールの送信
-# cat ${TMP} | $SENDMAIL_PATH -i -f ${FROM} ${TO} # BCC使わなければこっちが安全
-cat ${TMP} | $SENDMAIL_PATH -i -t
+cat ${TMP} | $SENDMAIL_PATH -i -f ${FROM} ${TO_TEST}
 
 # 4.6 文面ファイル(tmp.txt)をログへ吐き出し
 (
