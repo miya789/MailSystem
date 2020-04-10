@@ -215,9 +215,9 @@ endif
 touch ${TMP}
 
 echo "From: ${FROM}" >> ${TMP}
-echo "To: ${TO_EXECUTIVE}" >> ${TMP}
-if ("$BCC_EXECUTIVE" != "") then
-  echo "Bcc: ${BCC_EXECUTIVE}" >> ${TMP}
+echo "To: ${TO_TEST}" >> ${TMP}
+if ("$BCC_TEST" != "") then
+  echo "Bcc: ${BCC_TEST}" >> ${TMP}
 endif
 echo "Subject: ${SUBJECT_ENC}" >> ${TMP}
 echo "Content-Type: text/plain; charset=UTF-8" >> ${TMP}
@@ -249,7 +249,7 @@ echo "--" >> ${TMP}
 cat ${SIGNATURE_FILE} >> ${TMP}
 
 # メール文面の送信
-# cat ${TMP} | $SENDMAIL_PATH -i -f ${from} ${TO_EXECUTIVE} # BCC使わなければこっちが安全
+# cat ${TMP} | $SENDMAIL_PATH -i -f ${from} ${TO_TEST} # BCC使わなければこっちが安全
 cat ${TMP} | $SENDMAIL_PATH -i -t
 
 # メール文面のログ吐き出し
