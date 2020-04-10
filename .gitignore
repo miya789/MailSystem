@@ -16,3 +16,5 @@ TeamMEMS/tmp.txt
 
 # test code
 test/
+config/*
+!config/.private_info.sample
