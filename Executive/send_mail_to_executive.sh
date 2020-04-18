@@ -226,7 +226,6 @@ touch ${TMP}
   echo "Executiveの皆様"
   echo ""
   echo "${GRADE}の${NAME_JP}です．"
-  # echo "次回のExecutive Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @${MEETING_PLACE_JP}で行われます．"
   echo "次回のExecutive Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @`generate_location ${MEETING_ZOOM_URL} ${MEETING_PLACE_JP}`で行われます．"
   if [ "$MEETING_ZOOM_URL" != "" ]; then
     echo "  Zoom URL: ${MEETING_ZOOM_URL}"
