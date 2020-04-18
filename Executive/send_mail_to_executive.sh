@@ -33,10 +33,19 @@ generate_diff_option () {
   fi
 }
 
-# 1.6 ログ用の時間を記録
+# 1.6 ZooｍURLがあればZoomURLのみ，無ければ場所を返す
+generate_location () {
+  if [ "$1" != "" ]; then
+    echo "Zoom"
+  else
+    echo $2
+  fi
+}
+
+# 1.7 ログ用の時間を記録
 printf "[MAIL LOG] `date "+%Y/%m/%d-%H:%M:%S"`\n" >> ${LOG_FILE}
 
-# 1.7 最新休日情報のロード
+# 1.8 最新休日情報のロード
 ${PUBLIC_HOLIDAYS_SCRIPT_FILE} > ${PUBLIC_HOLIDAYS_FILE}
 printf "Holiday File Regenerated.\n\n" | sed "s/^/  /g" >> ${LOG_FILE}
 
@@ -192,7 +201,7 @@ DATE_FOR_CONTENTS_JP="${MONTH}/${DAY}(${day_of_week_JP})"
 DATE_FOR_CONTENTS_EN=`eval "date "$(generate_diff_option ${plusdate})" +'%A, %B'"`${DAY}
 
 # 4.2 件名の作成及びエンコード
-SUBJECT="The next Executive Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @${MEETING_PLACE_JP}】"
+SUBJECT="The next Executive Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @`generate_location ${MEETING_ZOOM_URL} ${MEETING_PLACE_JP}`】"
 SUBJECT_ENC=`echo ${SUBJECT} | nkf --mime --ic=UTF-8 --oc=UTF-8`
 
 # 4.3 文面ファイル(temp.txt)の用意
@@ -217,7 +226,8 @@ touch ${TMP}
   echo "Executiveの皆様"
   echo ""
   echo "${GRADE}の${NAME_JP}です．"
-  echo "次回のExecutive Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @${MEETING_PLACE_JP}で行われます．"
+  # echo "次回のExecutive Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @${MEETING_PLACE_JP}で行われます．"
+  echo "次回のExecutive Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @`generate_location ${MEETING_ZOOM_URL} ${MEETING_PLACE_JP}`で行われます．"
   if [ "$MEETING_ZOOM_URL" != "" ]; then
     echo "(Zoom URL: ${MEETING_ZOOM_URL})"
   fi
@@ -227,7 +237,7 @@ touch ${TMP}
   echo "Dear Executive members,"
   echo ""
   echo "I'm ${GRADE} ${NAME_EN}."
-  echo "The next Executive Meeting is going to be held at the ${MEETING_PLACE_EN} from ${MEETING_TIME} on ${DATE_FOR_CONTENTS_EN}."
+  echo "The next Executive Meeting is going to be held at the `generate_location ${MEETING_ZOOM_URL} ${MEETING_PLACE_EN}` from ${MEETING_TIME} on ${DATE_FOR_CONTENTS_EN}."
   if [ "$MEETING_ZOOM_URL" != "" ]; then
     echo "(Zoom URL: ${MEETING_ZOOM_URL})"
   fi
