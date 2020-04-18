@@ -229,7 +229,7 @@ touch ${TMP}
   # echo "次回のExecutive Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @${MEETING_PLACE_JP}で行われます．"
   echo "次回のExecutive Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @`generate_location ${MEETING_ZOOM_URL} ${MEETING_PLACE_JP}`で行われます．"
   if [ "$MEETING_ZOOM_URL" != "" ]; then
-    echo "(Zoom URL: ${MEETING_ZOOM_URL})"
+    echo "  Zoom URL: ${MEETING_ZOOM_URL}"
   fi
   echo "宜しくお願い致します．"
   echo ""
@@ -239,7 +239,7 @@ touch ${TMP}
   echo "I'm ${GRADE} ${NAME_EN}."
   echo "The next Executive Meeting is going to be held at the `generate_location ${MEETING_ZOOM_URL} ${MEETING_PLACE_EN}` from ${MEETING_TIME} on ${DATE_FOR_CONTENTS_EN}."
   if [ "$MEETING_ZOOM_URL" != "" ]; then
-    echo "(Zoom URL: ${MEETING_ZOOM_URL})"
+    echo "  Zoom URL: ${MEETING_ZOOM_URL}"
   fi
   echo "Please attend the meeting."
   echo "Thank you."
