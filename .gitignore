@@ -2,6 +2,7 @@ Executive/.private_info_csh
 Executive/.private_info
 Executive/public_holidays.txt
 Executive/log.txt
+Executive/log_test.txt
 Executive/log2.txt
 Executive/schedule.txt
 Executive/signature.txt
@@ -10,6 +11,7 @@ Executive/.env
 TeamMEMS/.private_info
 TeamMEMS/public_holidays.txt
 TeamMEMS/log.txt
+TeamMEMS/log_test.txt
 TeamMEMS/schedule.txt
 TeamMEMS/signature.txt
 TeamMEMS/tmp.txt
