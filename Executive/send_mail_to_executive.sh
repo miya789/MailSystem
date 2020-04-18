@@ -198,7 +198,7 @@ DAY=`eval "date $(generate_diff_option ${plusdate}) +%d" | bc`
 
 DATE_FOR_TITLE="${MONTH}/${DAY}(${day_of_week_EN})"
 DATE_FOR_CONTENTS_JP="${MONTH}/${DAY}(${day_of_week_JP})"
-DATE_FOR_CONTENTS_EN=`eval "date "$(generate_diff_option ${plusdate})" +'%A, %B'"`${DAY}
+DATE_FOR_CONTENTS_EN=`eval "date "$(generate_diff_option ${plusdate})" +'%A, %B '"`${DAY}
 
 # 4.2 件名の作成及びエンコード
 SUBJECT="The next Executive Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @`generate_location ${MEETING_ZOOM_URL} ${MEETING_PLACE_JP}`】"
