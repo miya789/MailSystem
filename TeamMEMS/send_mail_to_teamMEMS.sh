@@ -225,9 +225,6 @@ touch ${TMP}
   else
     echo "次回のTeamMEMS Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @${MEETING_PLACE_JP}で行われます．"
   fi
-  if [ "$MEETING_ZOOM_URL" != "" ]; then
-    echo "  Zoom URL: ${MEETING_ZOOM_URL}"
-  fi
   echo "宜しくお願い致します．"
   echo ""
   echo ""
