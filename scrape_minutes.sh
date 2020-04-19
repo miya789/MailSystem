@@ -25,6 +25,7 @@ while [ $i -le $COUNT ] && [ $should_generate_minute -eq 0 ]; do
   _date=`echo "${line}" | cut -d',' -f2`
   DATE=`date -d "${_date}" +%Y/%m/%d`
   if [ "$DATE" = "$TODAY" ]; then
+    MEETING_SUBJECT=`echo "$line" | cut -d',' -f1`
     MEETING_TIME=`echo "$line" | cut -d',' -f3`
     MEETING_PLACE=`echo "$line" | cut -d',' -f6`
     MEETING_ZOOM_URL=`echo "$line" | cut -d',' -f7`
