@@ -5,7 +5,7 @@ TMP_DIR="tmp"
 
 LOG_FILE="${TMP_DIR}/log.txt"
 printf "[SCRAPE LOG] `date "+%Y/%m/%d-%H:%M:%S"`\n" >> ${LOG_FILE}
-printf "  Loading env file...\n" >> ${LOG_FILE}
+printf "  Loading env file...\n\n" >> ${LOG_FILE}
 
 . "${CONFIG_DIR}/.env"
 
@@ -16,17 +16,19 @@ printf "  Loading env file...\n" >> ${LOG_FILE}
 SCHEDULE_FILE="${CONFIG_DIR}/lab_schedules.csv"
 COUNT=`grep '' $SCHEDULE_FILE | wc -l | awk '{printf "%d", $1}'`
 TODAY=`date +%Y/%m/%d`
+printf "Checking if there is the meeting on today (${TODAY})...\n" | sed "s/^/  /g"  >> ${LOG_FILE}
 should_generate_minute=0
-i=1
+i=2 # To skip header
 while [ $i -le $COUNT ] && [ $should_generate_minute -eq 0 ]; do
   line=`cat $SCHEDULE_FILE | head -$i | tail -1`
   printf "[${i}/${COUNT}]: ${line}\n" | sed "s/^/    /g" >> ${LOG_FILE}
-  DATE=`echo "${line}" | cut -d' ' -f1`
-  if [ $DATE = $TODAY ]; then
-    MEETING_TIME=`echo "$line" | cut -d' ' -f2`
-    MEETING_PLACE=`echo "$line" | cut -d' ' -f3`
-    MEETING_ZOOM_URL=`echo "$line" | cut -d' ' -f4`
-    printf "We have the meeting from ${MEETING_TIME} on ${DATE} at ${MEETING_PLACE}.\n" | sed "s/^/  /g" >> ${LOG_FILE}
+  _date=`echo "${line}" | cut -d',' -f2`
+  DATE=`date -d "${_date}" +%Y/%m/%d`
+  if [ "$DATE" = "$TODAY" ]; then
+    MEETING_TIME=`echo "$line" | cut -d',' -f3`
+    MEETING_PLACE=`echo "$line" | cut -d',' -f6`
+    MEETING_ZOOM_URL=`echo "$line" | cut -d',' -f7`
+    printf "We have the meeting from ${MEETING_TIME} on ${DATE} at ${MEETING_PLACE}.\n\n" | sed "s/^/  /g" >> ${LOG_FILE}
     should_generate_minute=1
   fi
   i=$(expr $i + 1)
