@@ -1,9 +1,9 @@
 #!/bin/sh -f
 
-CONFIG_DIR="config/"
-TMP_DIR="tmp/"
+CONFIG_DIR="config"
+TMP_DIR="tmp"
 
-. "${CONFIG_DIR}.env"
+. "${CONFIG_DIR}/.env"
 
 ####################################################################################################################
 #                                       ここで，schdule.csvを元に，議事録を作るべきdateを作成                          #
