@@ -3,6 +3,10 @@
 CONFIG_DIR="config"
 TMP_DIR="tmp"
 
+LOG_FILE="${TMP_DIR}/log.txt"
+printf "[SCRAPE LOG] `date "+%Y/%m/%d-%H:%M:%S"`\n" >> ${LOG_FILE}
+printf "  Loading env file...\n" >> ${LOG_FILE}
+
 . "${CONFIG_DIR}/.env"
 
 ####################################################################################################################
