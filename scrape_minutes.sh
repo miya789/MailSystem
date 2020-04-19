@@ -1,8 +1,9 @@
 #!/bin/sh -f
 
-dir="./"
+CONFIG_DIR="config/"
+TMP_DIR="tmp/"
 
-. "${dir}.env"
+. "${CONFIG_DIR}.env"
 
 curl --socks5 $PROXY $MINUTES_TOP_URL --digest -u $USER:$PASSWORD > top_page.html
 sleep 1
