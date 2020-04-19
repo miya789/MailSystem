@@ -13,6 +13,31 @@ printf "  Loading env file...\n" >> ${LOG_FILE}
 #                                       ここで，schdule.csvを元に，議事録を作るべきdateを作成                          #
 ####################################################################################################################
 
+SCHEDULE_FILE="${CONFIG_DIR}/lab_schedules.csv"
+COUNT=`grep '' $SCHEDULE_FILE | wc -l | awk '{printf "%d", $1}'`
+TODAY=`date +%Y/%m/%d`
+should_generate_minute=0
+i=1
+while [ $i -le $COUNT ] && [ $should_generate_minute -eq 0 ]; do
+  line=`cat $SCHEDULE_FILE | head -$i | tail -1`
+  printf "[${i}/${COUNT}]: ${line}\n" | sed "s/^/    /g" >> ${LOG_FILE}
+  DATE=`echo "${line}" | cut -d' ' -f1`
+  if [ $DATE = $TODAY ]; then
+    MEETING_TIME=`echo "$line" | cut -d' ' -f2`
+    MEETING_PLACE=`echo "$line" | cut -d' ' -f3`
+    MEETING_ZOOM_URL=`echo "$line" | cut -d' ' -f4`
+    printf "We have the meeting from ${MEETING_TIME} on ${DATE} at ${MEETING_PLACE}.\n" | sed "s/^/  /g" >> ${LOG_FILE}
+    should_generate_minute=1
+  fi
+  i=$(expr $i + 1)
+done
+
+# 予定の有無を判定
+if [ $should_generate_minute -eq 0 ]; then
+  printf "There is no meeting on ${TODAY}.\n\n" >> ${LOG_FILE}
+  exit 0
+fi
+
 curl --socks5 $PROXY $MINUTES_TOP_URL --digest -u $USER:$PASSWORD > top_page.html
 sleep 1
 TeamMEMS=`grep 'meeting 議事録</a>' top_page.html | sed -n 's/^.*href="\([^"]*\)".*$/\1/p' | head -1 | tail -1`
