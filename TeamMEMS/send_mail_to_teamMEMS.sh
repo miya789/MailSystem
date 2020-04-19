@@ -11,7 +11,7 @@ dir="${HOME}/MailSystem/TeamMEMS/"
 
 # 1.4 ファイル名の準備
 TMP_FILENAME="tmp.txt"
-SCHEDULE_FILENAME="../schedule_teamMEMS.txt"
+SCHEDULE_FILENAME="../config/teamMEMS_meetings.txt"
 SIGNATURE_FILENAME="signature.txt"
 PUBLIC_HOLIDAYS_FILENAME="public_holidays.txt"
 PUBLIC_HOLIDAYS_SCRIPT_FILENAME="public_holidays.sh"
@@ -189,10 +189,14 @@ DAY=`eval "date $(generate_diff_option ${plusdate}) +%d" | bc`
 
 DATE_FOR_TITLE="${MONTH}/${DAY}(${day_of_week_EN})"
 DATE_FOR_CONTENTS_JP="${MONTH}/${DAY}(${day_of_week_JP})"
-DATE_FOR_CONTENTS_EN=`eval "date "$(generate_diff_option ${plusdate})" +'%A, %B'"`${DAY}
+DATE_FOR_CONTENTS_EN=`eval "date "$(generate_diff_option ${plusdate})" +'%A, %B '"`${DAY}
 
 # 4.2 件名の作成及びエンコード
-SUBJECT="The next TeamMEMS Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @${MEETING_PLACE_JP}】"
+if [ "$MEETING_ZOOM_URL" != "" ]; then
+  SUBJECT="The next TeamMEMS Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @Zoom】"
+else
+  SUBJECT="The next TeamMEMS Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @${MEETING_PLACE_JP}】"
+fi
 SUBJECT_ENC=`echo ${SUBJECT} | nkf --mime --ic=UTF-8 --oc=UTF-8`
 
 # 4.3 文面ファイル(temp.txt)の用意
@@ -215,9 +219,11 @@ touch ${TMP}
   echo "TeamMEMSの皆様"
   echo ""
   echo "${GRADE}の${NAME_JP}です．"
-  echo "次回のTeamMEMS Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @${MEETING_PLACE_JP}で行われます．"
   if [ "$MEETING_ZOOM_URL" != "" ]; then
-    echo "(Zoom URL: ${MEETING_ZOOM_URL})"
+    echo "次回のTeamMEMS Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @Zoomで行われます．"
+    echo "  Zoom URL: ${MEETING_ZOOM_URL}"
+  else
+    echo "次回のTeamMEMS Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @${MEETING_PLACE_JP}で行われます．"
   fi
   echo "宜しくお願い致します．"
   echo ""
@@ -225,9 +231,11 @@ touch ${TMP}
   echo "Dear TeamMEMS members,"
   echo ""
   echo "I'm ${GRADE} ${NAME_EN}."
-  echo "The next TeamMEMS Meeting is going to be held at the ${MEETING_PLACE_EN} from ${MEETING_TIME} on ${DATE_FOR_CONTENTS_EN}."
   if [ "$MEETING_ZOOM_URL" != "" ]; then
-    echo "(Zoom URL: ${MEETING_ZOOM_URL})"
+    echo "The next TeamMEMS Meeting is going to be held at the Zoom from ${MEETING_TIME} on ${DATE_FOR_CONTENTS_EN}."
+    echo "  Zoom URL: ${MEETING_ZOOM_URL}"
+  else
+    echo "The next TeamMEMS Meeting is going to be held at the ${MEETING_PLACE_EN} from ${MEETING_TIME} on ${DATE_FOR_CONTENTS_EN}."
   fi
   echo "Please attend the meeting."
   echo "Thank you."
