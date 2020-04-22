@@ -78,49 +78,55 @@ echo "    TARGET_URL:${TARGET_URL}"
 echo "  Finished!"
 echo
 
-# while [ "${TARGET_URL}" = "" ]; do
-#   echo "  Cannot find today minutes, so generating page..."
-#   INDEX_EDIT_URL=`grep "Edit" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | head -1 | tail -1`
-#   echo "    INDEX_EDIT_URL:${INDEX_EDIT_URL}"
-#   echo
-#   echo "  Getting index_edit.html..."
-#   curl ${INDEX_EDIT_URL} ${CURL_OPTIONS} > ${INDEX_EDIT_HTML}
-#   echo
-#   sleep 5
+while [ "${TARGET_URL}" = "" ]; do
+  echo "  Cannot find today minutes, so generating page..."
+  INDEX_EDIT_URL=`grep "Edit" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | head -1 | tail -1`
+  echo "    INDEX_EDIT_URL:${INDEX_EDIT_URL}"
+  echo
+  echo "  Getting index_edit.html..."
+  curl ${INDEX_EDIT_URL} ${CURL_OPTIONS} > ${INDEX_EDIT_HTML}
+  echo
+  sleep 5
 
 
 
-#   # params作成現場
-#   INDEX_DIGEST=`cat "${INDEX_EDIT_HTML}" | grep digest | sed -n 's/^.* value=\"\([^"]*\).*/\1/p'`
-#   cat ${INDEX_EDIT_HTML} | sed -ne '/<textarea name=\"original/,/<\/textarea>/p' | sed 's/  \(<[^>]*\)/\1/g' | sed -e 's/<[^>]*>//g' | sed '1,2d' > ${INDEX_ORIGINAL_TXT}
+  # params作成現場
+  INDEX_DIGEST=`cat "${INDEX_EDIT_HTML}" | grep digest | sed -n 's/^.* value=\"\([^"]*\).*/\1/p'`
+  cat ${INDEX_EDIT_HTML} | sed -ne '/<textarea name=\"original/,/<\/textarea>/p' | sed 's/  \(<[^>]*\)/\1/g' | sed -e 's/<[^>]*>//g' | sed -e 's/\&amp\;/\&/g' | sed -e 's/\&gt\;/\>/g' > ${INDEX_ORIGINAL_TXT}
 
-#   cp ${INDEX_ORIGINAL_TXT} ${index_msg_txt}
-#   INSERTING_TXT="" # 新しい議事録のURLなどを挿入する行
-#   sed -i "1s/^/${INSERTING_TXT}\n/" ${index_msg_txt}
+  cp ${INDEX_ORIGINAL_TXT} ${index_msg_txt}
+  INSERTING_TXT="-[[${TODAY}>ミーティング議事録/${TODAY_FOR_MINUTES}]]" # 新しい議事録のURLなどを挿入する行
+  # echo "\n\n\n------"
+  # cat ${index_msg_txt} | sed -e "6a ${INSERTING_TXT}"
+  # cat ${index_msg_txt} | sed -e "6a -[[${TODAY}>ミーティング議事録/${TODAY_FOR_MINUTES}]]"
+  # echo "\n\n\n------"
+  cat ${index_msg_txt} | sed -e "6a ${INSERTING_TXT}" > ${index_msg_txt}
 
-#   INDEX_MSG_ENC=`cat ${index_msg_txt} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | tr = % | tr -d '\n'`
-#   INDEX_ORIGINAL_ENC=`cat ${INDEX_ORIGINAL_TXT} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | tr = % | tr -d '\n'`
+  INDEX_MSG_ENC=`cat ${index_msg_txt} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | tr = % | tr -d '\n'`
+  INDEX_ORIGINAL_ENC=`cat ${INDEX_ORIGINAL_TXT} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | tr = % | tr -d '\n'`
 
-#   # 各パラメータの値の確認が必要
-#   ## encode_hit="ぷ"
-#   ## cmd="edit"
-#   ## digest="<毎回異なるハッシュ値らしきもの>"
-#   ## msg="<投稿内容>"
-#   ## original="<元の内容>"
-#   ## write="Update"
-#   INDEX_PARAMS="encode_hint=%E3%81%B7&cmd=edit&digest=${INDEX_DIGEST}&msg=${INDEX_MSG_ENC}&original=${INDEX_ORIGINAL_ENC}&write=Update"
-#   echo "    INDEX_PARAMS:${INDEX_PARAMS}"
-#   echo
+  # 各パラメータの値の確認が必要
+  ## encode_hit="ぷ"
+  ## cmd="edit"
+  ## digest="<毎回異なるハッシュ値らしきもの>"
+  ## msg="<投稿内容>"
+  ## original="<元の内容>"
+  ## write="Update"
+  INDEX_PARAMS="encode_hint=%E3%81%B7&cmd=edit&digest=${INDEX_DIGEST}&msg=${INDEX_MSG_ENC}&original=${INDEX_ORIGINAL_ENC}&write=Update"
+  # echo "    INDEX_PARAMS:${INDEX_PARAMS}"
+  echo
 
+  echo $INDEX_PARAMS > params.txt
 
-
-#   INDEX_UPDATE_URL=`grep "Edit" ${INDEX_EDIT_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | head -1 | tail -1`
-#   echo "    INDEX_UPDATE_URL:${INDEX_UPDATE_URL}"
-#   # 怖いので，後日似た場所を用意し，個別でエスケープすべき文字があるか確認テスト
-#   # curl ${INDEX_UPDATE_URL} ${CURL_OPTIONS} -XPOST -d "${INDEX_PARAMS}"
-#   sleep 5
+  curl ${INDEX_EDIT_URL} ${CURL_OPTIONS} -XPOST -d "${INDEX_PARAMS}"
+  sleep 5
 
 
+
+  TARGET_URL=`grep "${TODAY_FOR_MINUTES}" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | tail -1`
+done
+echo "Preparaing page finished!"
+echo
 
 #   TARGET_URL=`grep "${TODAY_FOR_MINUTES}" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | tail -1`
 # done
