@@ -102,7 +102,7 @@ while [ "${TARGET_URL}" = "" ]; do
 
   cp ${INDEX_ORIGINAL_TXT} ${index_msg_txt}
   INSERTING_TXT="-[[${TODAY}>ミーティング議事録/${TODAY_FOR_MINUTES}]]" # 新しい議事録のURLなどを挿入する行
-  cat ${index_msg_txt} | sed -e "6a ${INSERTING_TXT}" > ${index_msg_txt}
+  sed -i -e "6a ${INSERTING_TXT}" ${index_msg_txt} | sed "s/^/    /g"
 
   INDEX_MSG_ENC=`cat ${index_msg_txt} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | tr = % | tr -d '\n'`
   INDEX_ORIGINAL_ENC=`cat ${INDEX_ORIGINAL_TXT} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | tr = % | tr -d '\n'`
@@ -114,21 +114,24 @@ while [ "${TARGET_URL}" = "" ]; do
   ## msg="<投稿内容>"
   ## original="<元の内容>"
   ## write="Update"
+  if [ "${INDEX_MSG_ENC}" = "" ] || [ "${INDEX_ORIGINAL_ENC}" = "" ]; then
+    printf "[ERROR] `date "+%Y/%m/%d-%H:%M:%S"`\n" >> ${LOG_FILE}
+    printf "  Generating INDEX_PARAMS was failed!\n\n" >> ${LOG_FILE}
+    exit 1
+  fi
   INDEX_PARAMS="encode_hint=%E3%81%B7&cmd=edit&digest=${INDEX_DIGEST}&msg=${INDEX_MSG_ENC}&original=${INDEX_ORIGINAL_ENC}&write=Update"
 
-  (
-    echo "    INDEX_PARAMS:${INDEX_PARAMS}"
-    echo
-  ) >> ${LOG_FILE}
+  echo $INDEX_PARAMS > "${TMP_DIR}/`date "+%Y%m%d_%H%M%S"`_params.txt"
+  cat $index_msg_txt > "${TMP_DIR}/`date "+%Y%m%d_%H%M%S"`_index_msg.txt"
+  cat $INDEX_ORIGINAL_TXT > "${TMP_DIR}/`date "+%Y%m%d_%H%M%S"`_index_original.txt"
 
-  echo $INDEX_PARAMS > params.txt
+
 
   curl ${INDEX_EDIT_URL} ${CURL_OPTIONS} -XPOST -d "${INDEX_PARAMS}"
   sleep 5
 
-
-
-  TARGET_URL=`grep "${TODAY_FOR_MINUTES}" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | tail -1`
+  curl ${INDEX_URL} ${CURL_OPTIONS} > ${INDEX_HTML}
+  TARGET_URL=`grep "${TODAY_FOR_MINUTES}" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | tail -1`
 done
 (
   echo "Preparaing page finished!"
