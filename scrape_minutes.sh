@@ -57,35 +57,41 @@ TODAY_FOR_MINUTES=`date +%Y%m%d`
 CURL_OPTIONS="--socks5 ${PROXY} --digest -u ${USER}:${PASSWORD}"
 
 # Scraping
-echo "  Getting top_page.html..."
+echo "  Getting top_page.html..." >> ${LOG_FILE}
 curl ${MINUTES_TOP_URL} ${CURL_OPTIONS} > ${TOP_HTML}
 sleep 5
 if [ "${MEETING_SUBJECT}" = "TeamMEMS meeting" ]; then
   INDEX_URL=`grep 'meeting 議事録</a>' ${TOP_HTML} | sed -n 's/^.*href="\([^"]*\)".*$/\1/p' | head -1 | tail -1`
-  echo ${INDEX_URL}
 elif [ "${MEETING_SUBJECT}" = "Executive meeting" ]; then
   INDEX_URL=`grep 'meeting 議事録</a>' ${TOP_HTML} | sed -n 's/^.*href="\([^"]*\)".*$/\1/p' | head -2 | tail -1`
 fi
-echo "    INDEX_URL: ${INDEX_URL}"
-echo "  Finished!"
-echo
+(
+  echo "    INDEX_URL: ${INDEX_URL}"
+  echo "  Finished!"
+  echo
+) >> ${LOG_FILE}
 
-echo "  Getting index.html..."
+echo "  Getting index.html..." >> ${LOG_FILE}
 curl ${INDEX_URL} ${CURL_OPTIONS} > ${INDEX_HTML}
 sleep 5
-TARGET_URL=`grep "${TODAY_FOR_MINUTES}" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | tail -1`
-echo "    TARGET_URL:${TARGET_URL}"
-echo "  Finished!"
-echo
+TARGET_URL=`grep "${TODAY_FOR_MINUTES}" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | tail -1`
+
+(
+  echo "    TARGET_URL:${TARGET_URL}"
+  echo "  Finished!"
+  echo
+) >> ${LOG_FILE}
 
 while [ "${TARGET_URL}" = "" ]; do
-  echo "  Cannot find today minutes, so generating page..."
+  echo "  Cannot find today minutes, so generating page..." >> ${LOG_FILE}
   INDEX_EDIT_URL=`grep "Edit" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | head -1 | tail -1`
-  echo "    INDEX_EDIT_URL:${INDEX_EDIT_URL}"
-  echo
-  echo "  Getting index_edit.html..."
+  (
+    echo "    INDEX_EDIT_URL:${INDEX_EDIT_URL}"
+    echo
+    echo "  Getting index_edit.html..."
+    echo
+  ) >> ${LOG_FILE}
   curl ${INDEX_EDIT_URL} ${CURL_OPTIONS} > ${INDEX_EDIT_HTML}
-  echo
   sleep 5
 
 
@@ -96,10 +102,6 @@ while [ "${TARGET_URL}" = "" ]; do
 
   cp ${INDEX_ORIGINAL_TXT} ${index_msg_txt}
   INSERTING_TXT="-[[${TODAY}>ミーティング議事録/${TODAY_FOR_MINUTES}]]" # 新しい議事録のURLなどを挿入する行
-  # echo "\n\n\n------"
-  # cat ${index_msg_txt} | sed -e "6a ${INSERTING_TXT}"
-  # cat ${index_msg_txt} | sed -e "6a -[[${TODAY}>ミーティング議事録/${TODAY_FOR_MINUTES}]]"
-  # echo "\n\n\n------"
   cat ${index_msg_txt} | sed -e "6a ${INSERTING_TXT}" > ${index_msg_txt}
 
   INDEX_MSG_ENC=`cat ${index_msg_txt} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | tr = % | tr -d '\n'`
@@ -113,8 +115,11 @@ while [ "${TARGET_URL}" = "" ]; do
   ## original="<元の内容>"
   ## write="Update"
   INDEX_PARAMS="encode_hint=%E3%81%B7&cmd=edit&digest=${INDEX_DIGEST}&msg=${INDEX_MSG_ENC}&original=${INDEX_ORIGINAL_ENC}&write=Update"
-  # echo "    INDEX_PARAMS:${INDEX_PARAMS}"
-  echo
+
+  (
+    echo "    INDEX_PARAMS:${INDEX_PARAMS}"
+    echo
+  ) >> ${LOG_FILE}
 
   echo $INDEX_PARAMS > params.txt
 
@@ -125,13 +130,10 @@ while [ "${TARGET_URL}" = "" ]; do
 
   TARGET_URL=`grep "${TODAY_FOR_MINUTES}" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | tail -1`
 done
-echo "Preparaing page finished!"
-echo
-
-#   TARGET_URL=`grep "${TODAY_FOR_MINUTES}" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | tail -1`
-# done
-# echo "Preparaing page finished!"
-# echo
+(
+  echo "Preparaing page finished!"
+  echo
+) >> ${LOG_FILE}
 
 curl ${TARGET_URL} ${CURL_OPTIONS} > ${TARGET_HTML}
 sleep 5
