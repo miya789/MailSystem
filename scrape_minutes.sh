@@ -134,33 +134,36 @@ while [ "${TARGET_URL}" = "" ]; do
   TARGET_URL=`grep "${TODAY_FOR_MINUTES}" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | tail -1`
 done
 (
-  echo "Preparaing page finished!"
+  echo "  Preparaing page finished!"
+  echo "  Got TARGET_URL: ${TARGET_URL}"
   echo
 ) >> ${LOG_FILE}
 
+echo "  Accessing target page..." >> ${LOG_FILE}
 curl ${TARGET_URL} ${CURL_OPTIONS} > ${TARGET_HTML}
-sleep 5
 
-echo "  Searching url for updating target page..."
 TARGET_EDIT_URL=`grep "Edit" ${TARGET_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | head -1 | tail -1`
-# For test>>>
-TARGET_EDIT_URL="http://mozart.if.t.u-tokyo.ac.jp/memswiki/index.php?cmd=edit&page=%E3%83%9F%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E8%AD%B0%E4%BA%8B%E9%8C%B2/20200423&refer=%E3%83%9F%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E8%AD%B0%E4%BA%8B%E9%8C%B2"
-# <<<For test
-echo "    TARGET_EDIT_URL:${TARGET_EDIT_URL}"
-curl ${TARGET_EDIT_URL} ${CURL_OPTIONS} > ${TARGET_EDIT_HTML}
+if [ "${TARGET_EDIT_URL}" = "" ]; then
+  echo "    There is not minute page."
+  TARGET_EDIT_URL=TARGET_URL
+  cp ${TARGET_HTML} ${TARGET_EDIT_HTML}
+else
+  echo "    Already there is minute page."
+  curl ${TARGET_EDIT_URL} ${CURL_OPTIONS} > ${TARGET_EDIT_HTML}
+fi
 sleep 5
-
 
 # params作成現場
 TARGET_DIGEST=`cat "${TARGET_EDIT_HTML}" | grep digest | sed -n 's/^.* value=\"\([^"]*\).*/\1/p'`
-cat ${TARGET_EDIT_HTML} | sed -ne '/<textarea name=\"original/,/<\/textarea>/p' | sed 's/  \(<[^>]*\)/\1/g' | sed -e 's/<[^>]*>//g' | sed '1,2d' > ${TARGET_ORIGINAL_TXT} # 初めの二行はテンプレート
+# cat ${TARGET_EDIT_HTML} | sed -ne '/<textarea name=\"original/,/<\/textarea>/p' | sed 's/  \(<[^>]*\)/\1/g' | sed -e 's/<[^>]*>//g' | sed '1,2d' > ${TARGET_ORIGINAL_TXT} # 初めの二行はテンプレート
+cat ${TARGET_EDIT_HTML} | sed -ne '/<textarea name=\"original/,/<\/textarea>/p' | sed 's/  \(<[^>]*\)/\1/g' | sed -e 's/<[^>]*>//g' > ${TARGET_ORIGINAL_TXT}
 
 cp ${TARGET_ORIGINAL_TXT} ${target_msg_txt}
-INSERTING_TXT="" # 書く内容を用意
-sed -i "1s/^/${INSERTING_TXT}\n/" ${target_msg_txt}
+# INSERTING_TXT="Test\nThis is the sentence." # 書く内容を用意
+# sed -i "1s/^/${INSERTING_TXT}\n/" ${target_msg_txt}
 
-TARGET_MSG_ENC=`cat ${target_msg_txt} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | tr = % | tr -d '\n'`
-TARGET_ORIGINAL_ENC=`cat ${TARGET_ORIGINAL_TXT} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | tr = % | tr -d '\n'`
+TARGET_MSG_ENC=`cat ${target_msg_txt} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | sed -z 's/=2A/*/g' | sed -z 's/=2B/+/g' | sed -z 's/=25/%/g' | tr = % | tr -d '\n'`
+TARGET_ORIGINAL_ENC=`cat ${TARGET_ORIGINAL_TXT} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | sed -z 's/=2A/*/g' | sed -z 's/=2B/+/g' | sed -z 's/=25/%/g' | tr = % | tr -d '\n'`
 
 # 各パラメータの値の確認が必要
 ## encode_hit="ぷ"
@@ -169,13 +172,8 @@ TARGET_ORIGINAL_ENC=`cat ${TARGET_ORIGINAL_TXT} | nkf -WwMQ | sed -e ':loop; N; 
 ## msg="<投稿内容>"
 ## original="<元の内容>"
 ## write="Update"
-TARGET_PARAMS="encode_hint=%E3%81%B7&cmd=edit&digest=${TARGET_DIGEST}&msg=${TARGET_MSG_ENC}&original=${TARGET_ORIGINAL_ENC}&write=Update"
+TARGET_PARAMS="encode_hint=%E3%81%B7&digest=${TARGET_DIGEST}&msg=${TARGET_MSG_ENC}&original=${TARGET_ORIGINAL_ENC}&write=Update"
 echo "    TARGET_PARAMS:${TARGET_PARAMS}"
 
-
-
-TARGET_UPDATE_URL=`grep "Edit" ${TARGET_EDIT_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | head -1 | tail -1` # ここのエスケープ個別変換は何!?!?!?!?!?!??!?!?!?!?!?!??!?!?!?! アドレスが違って，"Using both cmd= and plugin= is not allowed"とか言われるんやが，，，
-echo "    TARGET_UPDATE_URL:${TARGET_UPDATE_URL}"
-# 怖いので，後日似た場所を用意し，個別でエスケープすべき文字があるか確認テスト
-curl ${TARGET_UPDATE_URL} ${CURL_OPTIONS} -XPOST -d "${TARGET_PARAMS}" >> result.txt
+curl ${TARGET_EDIT_URL} ${CURL_OPTIONS} -XPOST -d "${TARGET_PARAMS}" > result.txt
 sleep 5
