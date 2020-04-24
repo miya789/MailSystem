@@ -55,11 +55,12 @@ target_msg_txt="${TMP_DIR}/target_msg.txt"
 TODAY_FOR_MINUTES=`date +%Y%m%d`
 
 CURL_OPTIONS="--socks5 ${PROXY} --digest -u ${USER}:${PASSWORD}"
+WAIT_TIME=3
 
 # Scraping
 echo "  Getting top_page.html..." >> ${LOG_FILE}
 curl ${MINUTES_TOP_URL} ${CURL_OPTIONS} > ${TOP_HTML}
-sleep 5
+sleep $WAIT_TIME
 if [ "${MEETING_SUBJECT}" = "TeamMEMS meeting" ]; then
   INDEX_URL=`grep 'meeting 議事録</a>' ${TOP_HTML} | sed -n 's/^.*href="\([^"]*\)".*$/\1/p' | head -1 | tail -1`
 elif [ "${MEETING_SUBJECT}" = "Executive meeting" ]; then
@@ -73,7 +74,7 @@ fi
 
 echo "  Getting index.html..." >> ${LOG_FILE}
 curl ${INDEX_URL} ${CURL_OPTIONS} > ${INDEX_HTML}
-sleep 5
+sleep $WAIT_TIME
 TARGET_URL=`grep "${TODAY_FOR_MINUTES}" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | tail -1`
 
 (
@@ -92,7 +93,7 @@ while [ "${TARGET_URL}" = "" ]; do
     echo
   ) >> ${LOG_FILE}
   curl ${INDEX_EDIT_URL} ${CURL_OPTIONS} > ${INDEX_EDIT_HTML}
-  sleep 5
+  sleep $WAIT_TIME
 
 
 
@@ -128,7 +129,7 @@ while [ "${TARGET_URL}" = "" ]; do
 
 
   curl ${INDEX_EDIT_URL} ${CURL_OPTIONS} -XPOST -d "${INDEX_PARAMS}"
-  sleep 5
+  sleep $WAIT_TIME
 
   curl ${INDEX_URL} ${CURL_OPTIONS} > ${INDEX_HTML}
   TARGET_URL=`grep "${TODAY_FOR_MINUTES}" ${INDEX_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | tail -1`
@@ -142,25 +143,27 @@ done
 echo "  Accessing target page..." >> ${LOG_FILE}
 curl ${TARGET_URL} ${CURL_OPTIONS} > ${TARGET_HTML}
 
-TARGET_EDIT_URL=`grep "Edit" ${TARGET_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | head -1 | tail -1`
-if [ "${TARGET_EDIT_URL}" = "" ]; then
-  echo "    There is not minute page."
-  TARGET_EDIT_URL=TARGET_URL
+LINK_COUNT=`grep "Edit" ${TARGET_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | wc -l`
+
+if [ "${LINK_COUNT}" = "3" ]; then
+  echo "    There is not minute page." >> ${LOG_FILE}
+  TARGET_EDIT_URL=${TARGET_URL}
   cp ${TARGET_HTML} ${TARGET_EDIT_HTML}
 else
-  echo "    Already there is minute page."
+  TARGET_EDIT_URL=`grep "Edit" ${TARGET_HTML} | sed -n 's/^.*href=\"\([^"]*\)".*$/\1/p' | sed -e 's/\&amp\;/\&/g' | head -1 | tail -1`
+  echo "    Already there is minute page." >> ${LOG_FILE}
   curl ${TARGET_EDIT_URL} ${CURL_OPTIONS} > ${TARGET_EDIT_HTML}
 fi
-sleep 5
+sleep $WAIT_TIME
 
 # params作成現場
 TARGET_DIGEST=`cat "${TARGET_EDIT_HTML}" | grep digest | sed -n 's/^.* value=\"\([^"]*\).*/\1/p'`
 # cat ${TARGET_EDIT_HTML} | sed -ne '/<textarea name=\"original/,/<\/textarea>/p' | sed 's/  \(<[^>]*\)/\1/g' | sed -e 's/<[^>]*>//g' | sed '1,2d' > ${TARGET_ORIGINAL_TXT} # 初めの二行はテンプレート
-cat ${TARGET_EDIT_HTML} | sed -ne '/<textarea name=\"original/,/<\/textarea>/p' | sed 's/  \(<[^>]*\)/\1/g' | sed -e 's/<[^>]*>//g' > ${TARGET_ORIGINAL_TXT}
+cat ${TARGET_EDIT_HTML} | sed -ne '/<textarea name=\"original/,/<\/textarea>/p' | sed 's/  \(<[^>]*\)/\1/g' | sed -e 's/<[^>]*>//g' | sed -e 's/\&amp\;/\&/g' | sed -e 's/\&gt\;/\>/g' | sed -e 's/\&lt\;/\</g' | sed -e 's/\&quot\;/\"/g' > ${TARGET_ORIGINAL_TXT}
 
 cp ${TARGET_ORIGINAL_TXT} ${target_msg_txt}
-# INSERTING_TXT="Test\nThis is the sentence." # 書く内容を用意
-# sed -i "1s/^/${INSERTING_TXT}\n/" ${target_msg_txt}
+INSERTING_TXT="- Test\n- This is the sentence.\n- ><\"\&" # 書く内容を用意
+sed -i "1s/^/${INSERTING_TXT}\n/" ${target_msg_txt}
 
 TARGET_MSG_ENC=`cat ${target_msg_txt} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | sed -z 's/=2A/*/g' | sed -z 's/=2B/+/g' | sed -z 's/=25/%/g' | tr = % | tr -d '\n'`
 TARGET_ORIGINAL_ENC=`cat ${TARGET_ORIGINAL_TXT} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | sed -z 's/=2A/*/g' | sed -z 's/=2B/+/g' | sed -z 's/=25/%/g' | tr = % | tr -d '\n'`
@@ -173,7 +176,11 @@ TARGET_ORIGINAL_ENC=`cat ${TARGET_ORIGINAL_TXT} | nkf -WwMQ | sed -e ':loop; N; 
 ## original="<元の内容>"
 ## write="Update"
 TARGET_PARAMS="encode_hint=%E3%81%B7&digest=${TARGET_DIGEST}&msg=${TARGET_MSG_ENC}&original=${TARGET_ORIGINAL_ENC}&write=Update"
-echo "    TARGET_PARAMS:${TARGET_PARAMS}"
+echo "    TARGET_PARAMS:${TARGET_PARAMS}" >> ${LOG_FILE}
 
+if [ "${TARGET_MSG_ENC}" = "" ] || [ "${TARGET_ORIGINAL_ENC}" = "" ]; then
+  printf "[ERROR] `date "+%Y/%m/%d-%H:%M:%S"`\n" >> ${LOG_FILE}
+  printf "  Generating TARGET_PARAMS was failed!\n\n" >> ${LOG_FILE}
+  exit 1
+fi
 curl ${TARGET_EDIT_URL} ${CURL_OPTIONS} -XPOST -d "${TARGET_PARAMS}" > result.txt
-sleep 5
