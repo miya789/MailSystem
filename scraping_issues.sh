@@ -18,7 +18,7 @@ WAIT_TIME=3
 # Scraping
 echo "  Getting issues..." >> ${LOG_FILE}
 
-data_file="data.txt";
+data_file="${TMP_DIR}/data.txt";
 
 if [ -e ${data_file} ]; then
   rm -rf ${data_file}

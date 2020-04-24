@@ -162,7 +162,7 @@ TARGET_DIGEST=`cat "${TARGET_EDIT_HTML}" | grep digest | sed -n 's/^.* value=\"\
 cat ${TARGET_EDIT_HTML} | sed -ne '/<textarea name=\"original/,/<\/textarea>/p' | sed 's/  \(<[^>]*\)/\1/g' | sed -e 's/<[^>]*>//g' | sed -e 's/\&amp\;/\&/g' | sed -e 's/\&gt\;/\>/g' | sed -e 's/\&lt\;/\</g' | sed -e 's/\&quot\;/\"/g' > ${TARGET_ORIGINAL_TXT}
 
 ./scraping_issues.sh
-cp data.txt ${target_msg_txt}
+cp "${TMP_DIR}/data.txt" ${target_msg_txt}
 # cp ${TARGET_ORIGINAL_TXT} ${target_msg_txt}
 # INSERTING_TXT="- Test\n- This is the sentence.\n- ><\"\&" # 書く内容を用意
 # sed -i "1s/^/${INSERTING_TXT}\n/" ${target_msg_txt}
