@@ -1,4 +1,4 @@
-#!/bin/sh -f
+#!/bin/sh
 
 CONFIG_DIR="config"
 TMP_DIR="tmp"
@@ -128,7 +128,7 @@ while [ "${TARGET_URL}" = "" ]; do
 
 
 
-  curl ${INDEX_EDIT_URL} ${CURL_OPTIONS} -XPOST -d "${INDEX_PARAMS}"
+  # curl ${INDEX_EDIT_URL} ${CURL_OPTIONS} -XPOST -d "${INDEX_PARAMS}"
   sleep $WAIT_TIME
 
   curl ${INDEX_URL} ${CURL_OPTIONS} > ${INDEX_HTML}
@@ -161,9 +161,11 @@ TARGET_DIGEST=`cat "${TARGET_EDIT_HTML}" | grep digest | sed -n 's/^.* value=\"\
 # cat ${TARGET_EDIT_HTML} | sed -ne '/<textarea name=\"original/,/<\/textarea>/p' | sed 's/  \(<[^>]*\)/\1/g' | sed -e 's/<[^>]*>//g' | sed '1,2d' > ${TARGET_ORIGINAL_TXT} # 初めの二行はテンプレート
 cat ${TARGET_EDIT_HTML} | sed -ne '/<textarea name=\"original/,/<\/textarea>/p' | sed 's/  \(<[^>]*\)/\1/g' | sed -e 's/<[^>]*>//g' | sed -e 's/\&amp\;/\&/g' | sed -e 's/\&gt\;/\>/g' | sed -e 's/\&lt\;/\</g' | sed -e 's/\&quot\;/\"/g' > ${TARGET_ORIGINAL_TXT}
 
-cp ${TARGET_ORIGINAL_TXT} ${target_msg_txt}
-INSERTING_TXT="- Test\n- This is the sentence.\n- ><\"\&" # 書く内容を用意
-sed -i "1s/^/${INSERTING_TXT}\n/" ${target_msg_txt}
+./scraping_issues.sh
+cp data.txt ${target_msg_txt}
+# cp ${TARGET_ORIGINAL_TXT} ${target_msg_txt}
+# INSERTING_TXT="- Test\n- This is the sentence.\n- ><\"\&" # 書く内容を用意
+# sed -i "1s/^/${INSERTING_TXT}\n/" ${target_msg_txt}
 
 TARGET_MSG_ENC=`cat ${target_msg_txt} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | sed -z 's/=2A/*/g' | sed -z 's/=2B/+/g' | sed -z 's/=25/%/g' | tr = % | tr -d '\n'`
 TARGET_ORIGINAL_ENC=`cat ${TARGET_ORIGINAL_TXT} | nkf -WwMQ | sed -e ':loop; N; $!b loop; s/=\n//g' | sed -z 's/\n/%0D%0A/g' | sed -z 's/=2A/*/g' | sed -z 's/=2B/+/g' | sed -z 's/=25/%/g' | tr = % | tr -d '\n'`
