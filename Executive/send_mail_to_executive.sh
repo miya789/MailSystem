@@ -102,6 +102,7 @@ while [ $i -le $COUNT ] && [ $should_send_mail -eq 0 ]; do
     MEETING_TIME=`echo "$line" | cut -d' ' -f2`
     MEETING_PLACE=`echo "$line" | cut -d' ' -f3`
     MEETING_ZOOM_URL=`echo "$line" | cut -d' ' -f4`
+    MEETING_ZOOM_PASSWORD=`echo "$line" | cut -d' ' -f5`
     printf "We have the meeting from ${MEETING_TIME} on ${DATE} at ${MEETING_PLACE}.\n" | sed "s/^/  /g" >> ${LOG_FILE}
     should_send_mail=1
   fi
@@ -224,6 +225,7 @@ touch ${TMP}
   if [ "$MEETING_ZOOM_URL" != "" ]; then
     echo "次回のExecutive Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @Zoomで行われます．"
     echo "  Zoom URL: ${MEETING_ZOOM_URL}"
+    echo "  Zoom Password: ${MEETING_ZOOM_PASSWORD}"
   else
     echo "次回のExecutive Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @${MEETING_PLACE_JP}で行われます．"
   fi
@@ -236,6 +238,7 @@ touch ${TMP}
   if [ "$MEETING_ZOOM_URL" != "" ]; then
     echo "The next Executive Meeting is going to be held at the Zoom from ${MEETING_TIME} on ${DATE_FOR_CONTENTS_EN}."
     echo "  Zoom URL: ${MEETING_ZOOM_URL}"
+    echo "  Zoom Password: ${MEETING_ZOOM_PASSWORD}"
   else
     echo "The next Executive Meeting is going to be held at the ${MEETING_PLACE_EN} from ${MEETING_TIME} on ${DATE_FOR_CONTENTS_EN}."
   fi
