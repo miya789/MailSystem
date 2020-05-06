@@ -72,7 +72,7 @@ printf "${plusdate} day later:\n" | sed "s/^/  /g" | column -t -s, >> ${LOG_FILE
 printf "day of week(No.): ${day_of_week_num}, date: ${date}, public holiday?: ${is_public_holiday}\n" | sed "s/^/    /g" >> ${LOG_FILE}
 
 ## 次の平日に辿り着くまでループ
-while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${holidayflg}" != ""  ]; do
+while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${is_public_holiday}" != ""  ]; do
   plusdate=$(expr $plusdate + 1)
   day_of_week_num=`eval "date $(generate_diff_option ${plusdate}) +%u"`
   date=`eval "date $(generate_diff_option ${plusdate}) +%Y%m%d"`
