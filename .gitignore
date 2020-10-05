@@ -16,6 +16,7 @@ TeamMEMS/tmp.txt
 
 # test code
 test/
+tmp/
 
 # config
 config/*
