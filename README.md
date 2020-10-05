@@ -1,8 +1,11 @@
 # MitaLab Mail System
+
 - ラボのメールの自動送信のリポジトリです．
 
 ## ファイル構成
-- (・)はGit管理外
+
+- (・)は Git 管理外
+
 ```
 .
 ├── README.md
@@ -12,7 +15,7 @@
 │   ├── (teamMEMS_mail.csv)
 │   ├── (teamMEMS_mail_zoom.csv)
 │   ├── (.private_info)
-│   └── 
+│   └──
 ├── Executive
 │   ├── README.txt
 │   ├── send_mail_to_executive.csh
@@ -36,8 +39,11 @@
 ```
 
 ### 各ファイルの使用方法
-- 主にExetutiveに関して説明する
+
+- 主に Exetutive に関して説明する
+
 #### Executive
+
 - send_mail_to_executive.sh: 実行ファイル
   - 弄る必要は無い
 - public_holidays.sh: 祝日取得用のスクリプト
@@ -56,7 +62,7 @@
     - 例えば次のようなデータが、それぞれの日程について改行区切りで入っている
       - e.g.) 2020/12/01,10:00,Zoom,Executive meeting
     - 各ミーティング日程は，半角スペース区切りで `yy/mm/dd,開始時刻,場所,内容` と入力
-      - `yy/mm/dd` : 日付．月と日それぞれ2文字ずつ(0埋め)入力
+      - `yy/mm/dd` : 日付．月と日それぞれ 2 文字ずつ(0 埋め)入力
         - e.g.) 2020/03/07、2020/12/05、2020/10/14
       - `開始時刻` : そのまま:区切りで入力
         - e.g. 10:00、09:30
@@ -72,26 +78,32 @@
 - (tmp.txt): メールの文面として自動で作成され，自動で削除される
 
 ## 使用手順
+
 ### セットアップ
-1. 下記の何れかでmozartの自分のフォルダ(`$HOME`)で `git clone`
+
+1. 下記の何れかで mozart の自分のフォルダ(`$HOME`)で `git clone`
+
 ```
 git clone https://github.com/miya789/MailSystem.git # デフォルト
 git clone git@github.com:miya789/MailSystem.git     # GitHubとSSH通信可能な人用
 ```
+
 2. 各ディレクトリ( `Executive` , `TeamMEMS` )の `.private_info` や `signature.txt` を自分用の設定に置き換える
 3. `cd Executive`
 4. `chmod a+x ExecutiveMail.sh`
 5. `pwd`
-6. pwdで出てきた結果をコピー
+6. pwd で出てきた結果をコピー
 7. `crontab -e`
-8.  iキーを押す(insertモード)
-9.  `00 09 * * * (pwdの結果)/send_mail_to_executive.sh`　と入力
-    - e.g.) `00 09 * * * $HOME/MailSystem/Executive/send_mail_to_executive.sh`
+8. i キーを押す(insert モード)
+9. `00 09 * * * (pwdの結果)/send_mail_to_executive.sh`　と入力
+   - e.g.) `00 09 * * * $HOME/MailSystem/Executive/send_mail_to_executive.sh`
 10. `:wq` と入力(エディタから抜ける)
 
 ### 普段
-- Meetingで日程が決まる度に， `{Executive, TeamMEMS}/schedule.txt` を更新
+
+- Meeting で日程が決まる度に， `{Executive, TeamMEMS}/schedule.txt` を更新
   - 別のプログラムで作成した以下のような `executive_mail.csv` と `executive_mail_zoom.csv` を読み込む
+
 ```csv:executive_mail.csv
 Start Date,Start Time,Location,Subject
 2021/03/01,10:00,114,Executive meeting
@@ -102,11 +114,13 @@ Start Date,Start Time,Location,Subject
 Start Date,Start Time,URL,Password
 2021/03/08,10:00,https://zoom.us/j/<ID>?pwd=<ENCODED_PASS>,<PASS>
 ```
+
 - 決まった直後に行うと，忘れずにできて良い
-- 尚，送信に失敗した場合は自分宛にcronからメールが届く
+- 尚，送信に失敗した場合は自分宛に cron からメールが届く
   - その際は自分でメールを書いて送信すれば良い
 
 ### 引継ぎ後
-- 下記手順でcronの設定を消去する
+
+- 下記手順で cron の設定を消去する
   1. `crontab -e`
   2. 設定時に書いた一行を削除
