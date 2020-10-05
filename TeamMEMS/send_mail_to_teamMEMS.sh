@@ -82,7 +82,7 @@ while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${i
 done
 
 # 2.6 発見した次の翌日の詳細
-NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%m/%d"`
+NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%Y/%m/%d"`
 (
   printf "Finished!\n" | sed "s/^/  /g"
   printf "The next weekday:\n" | sed "s/^/  /g" | column -t -s,
