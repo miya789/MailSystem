@@ -93,7 +93,7 @@ NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%Y/%m/%d"`
 printf "Checking if there is the meeting on ${NEXT_WEEKDAY}...\n" | sed "s/^/  /g"  >> ${LOG_FILE}
 should_send_mail=0
 COUNT=`grep '' ${SCHEDULE_FILE} | wc -l | awk '{printf "%d", $1}'`
-i=1
+i=2
 while [ $i -le $COUNT ] && [ $should_send_mail -eq 0 ]; do
   line=`cat $SCHEDULE_FILE | head -$i | tail -1`
   printf "[${i}/${COUNT}]: ${line}\n" | sed "s/^/    /g">> ${LOG_FILE}
