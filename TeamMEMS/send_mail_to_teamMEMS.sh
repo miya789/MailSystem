@@ -11,13 +11,15 @@ dir="${HOME}/MailSystem/TeamMEMS/"
 
 # 1.4 ファイル名の準備
 TMP_FILENAME="tmp.txt"
-SCHEDULE_FILENAME="../config/teamMEMS_meetings.txt"
+SCHEDULE_FILENAME="../config/teamMEMS_mail.csv"
+SCHEDULE_ZOOM_FILENAME="../config/teamMEMS_mail_zoom.csv"
 SIGNATURE_FILENAME="signature.txt"
 PUBLIC_HOLIDAYS_FILENAME="public_holidays.txt"
 PUBLIC_HOLIDAYS_SCRIPT_FILENAME="public_holidays.sh"
 LOG_FILENAME="log.txt"
 TMP="${dir}${TMP_FILENAME}"
 SCHEDULE_FILE="${dir}${SCHEDULE_FILENAME}"
+SCHEDULE_ZOOM_FILE="${dir}${SCHEDULE_ZOOM_FILENAME}"
 SIGNATURE_FILE="${dir}${SIGNATURE_FILENAME}"
 PUBLIC_HOLIDAYS_FILE="${dir}${PUBLIC_HOLIDAYS_FILENAME}"
 PUBLIC_HOLIDAYS_SCRIPT_FILE="${dir}${PUBLIC_HOLIDAYS_SCRIPT_FILENAME}"
@@ -82,7 +84,7 @@ while [ $day_of_week_num -eq ${Sat} ] || [ $day_of_week_num -eq $Sun ] || [ "${i
 done
 
 # 2.6 発見した次の翌日の詳細
-NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%m/%d"`
+NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%Y/%m/%d"`
 (
   printf "Finished!\n" | sed "s/^/  /g"
   printf "The next weekday:\n" | sed "s/^/  /g" | column -t -s,
@@ -93,16 +95,14 @@ NEXT_WEEKDAY=`eval "date $(generate_diff_option ${plusdate}) +%m/%d"`
 printf "Checking if there is the meeting on ${NEXT_WEEKDAY}...\n" | sed "s/^/  /g"  >> ${LOG_FILE}
 should_send_mail=0
 COUNT=`grep '' ${SCHEDULE_FILE} | wc -l | awk '{printf "%d", $1}'`
-i=1
+i=2
 while [ $i -le $COUNT ] && [ $should_send_mail -eq 0 ]; do
   line=`cat $SCHEDULE_FILE | head -$i | tail -1`
   printf "[${i}/${COUNT}]: ${line}\n" | sed "s/^/    /g">> ${LOG_FILE}
-  DATE=`echo "$line" | cut -d' ' -f1`
+  DATE=`echo "$line" | cut -d',' -f1`
   if [ $DATE = $NEXT_WEEKDAY ]; then
-    MEETING_TIME=`echo "$line" | cut -d' ' -f2`
-    MEETING_PLACE=`echo "$line" | cut -d' ' -f3`
-    MEETING_ZOOM_URL=`echo "$line" | cut -d' ' -f4`
-    MEETING_ZOOM_PASSWORD=`echo "$line" | cut -d' ' -f5`
+    MEETING_TIME=`echo "$line" | cut -d',' -f2`
+    MEETING_PLACE=`echo "$line" | cut -d',' -f3`
     printf "We have the meeting from ${MEETING_TIME} on ${DATE} at ${MEETING_PLACE}.\n" | sed "s/^/  /g" >> ${LOG_FILE}
     should_send_mail=1
   fi
@@ -140,6 +140,26 @@ case $MEETING_PLACE in
   Bldg13 )
     MEETING_PLACE_EN="Bldg. 13"
     MEETING_PLACE_JP="13号館一般実験室"
+    ;;
+  Zoom )
+    printf "\nChecking Zoom URL & password of the meeting on ${NEXT_WEEKDAY}...\n" | sed "s/^/  /g"  >> ${LOG_FILE}
+    COUNT=`grep '' ${SCHEDULE_ZOOM_FILE} | wc -l | awk '{printf "%d", $1}'`
+    i=2
+    while [ $i -le $COUNT ]; do
+      line=`cat $SCHEDULE_ZOOM_FILE | head -$i | tail -1`
+      printf "[${i}/${COUNT}]: ${line}\n" | sed "s/^/    /g">> ${LOG_FILE}
+      ZOOM_DATE=`echo "$line" | cut -d',' -f1`
+      ZOOM_TIME=`echo "$line" | cut -d',' -f2`
+      if [ $ZOOM_DATE = $DATE ] && [ $ZOOM_TIME = $MEETING_TIME ]; then
+        MEETING_ZOOM_URL=`echo "$line" | cut -d',' -f3`
+        MEETING_ZOOM_PASSWORD=`echo "$line" | cut -d',' -f4`
+        printf "$MEETING_ZOOM_URL $MEETING_ZOOM_PASSWORD\n"
+      fi
+      i=$(expr $i + 1)
+    done
+
+    MEETING_PLACE_EN=$MEETING_PLACE
+    MEETING_PLACE_JP=$MEETING_PLACE
     ;;
   * )
     MEETING_PLACE_EN=$MEETING_PLACE
@@ -193,11 +213,7 @@ DATE_FOR_CONTENTS_JP="${MONTH}/${DAY}(${day_of_week_JP})"
 DATE_FOR_CONTENTS_EN=`eval "date "$(generate_diff_option ${plusdate})" +'%A, %B '"`${DAY}
 
 # 4.2 件名の作成及びエンコード
-if [ "$MEETING_ZOOM_URL" != "" ]; then
-  SUBJECT="The next TeamMEMS Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @Zoom】"
-else
-  SUBJECT="The next TeamMEMS Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @${MEETING_PLACE_JP}】"
-fi
+SUBJECT="The next TeamMEMS Meeting【${DATE_FOR_TITLE} ${MEETING_TIME} - @${MEETING_PLACE_JP}】"
 SUBJECT_ENC=`echo ${SUBJECT} | nkf --mime --ic=UTF-8 --oc=UTF-8`
 
 # 4.3 文面ファイル(temp.txt)の用意
