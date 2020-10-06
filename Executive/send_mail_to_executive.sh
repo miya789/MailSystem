@@ -245,6 +245,8 @@ touch ${TMP}
   else
     echo "次回のExecutive Meetingは${DATE_FOR_CONTENTS_JP} ${MEETING_TIME} - @${MEETING_PLACE_JP}で行われます．"
   fi
+  echo "尚，ミーティングに関する連絡はこちらのメーリングリストのメッセージ宛で返信をお願い致します．"
+  echo "また今回はZoomのAPI越しでミーティングルームを作成致しましたので，問題などがございましたら同様にお知らせ下さい．"
   echo "宜しくお願い致します．"
   echo ""
   echo ""
