@@ -7,10 +7,9 @@ if [ ! -d ${TMP_DIR} ]; then
 fi
 
 LOG_FILE="${TMP_DIR}/log.txt"
-if [ -e ${LOG_FILE} ]; then
-  rm -rf ${LOG_FILE}
+if [ ! -e ${LOG_FILE} ]; then
+  touch ${LOG_FILE}
 fi
-touch ${LOG_FILE}
 
 printf "[SCRAPE_ISSUES LOG] `date "+%Y/%m/%d-%H:%M:%S"`\n" >> ${LOG_FILE}
 printf "  Loading env file...\n\n" >> ${LOG_FILE}
@@ -24,7 +23,7 @@ CURL_OPTIONS="--socks5 ${PROXY} --digest -u ${USER}:${PASSWORD} -v"
 WAIT_TIME=3
 
 # Scraping
-echo "  Getting issues..." >> ${LOG_FILE}
+echo "  Getting issues...\n" >> ${LOG_FILE}
 
 data_file="${TMP_DIR}/data.txt";
 
