@@ -2,8 +2,16 @@
 
 CONFIG_DIR="config"
 TMP_DIR="tmp"
+if [ ! -d ${TMP_DIR} ]; then
+  mkdir ${TMP_DIR}
+fi
 
 LOG_FILE="${TMP_DIR}/log.txt"
+if [ -e ${LOG_FILE} ]; then
+  rm -rf ${LOG_FILE}
+fi
+touch ${LOG_FILE}
+
 printf "[SCRAPE_ISSUES LOG] `date "+%Y/%m/%d-%H:%M:%S"`\n" >> ${LOG_FILE}
 printf "  Loading env file...\n\n" >> ${LOG_FILE}
 
