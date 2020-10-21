@@ -40,6 +40,7 @@ touch ${data_file}
 ) >> ${data_file}
 
 curl ${NANOTECH_HELP_URL} ${CURL_OPTIONS} > "${NANOTECH_HELP_TXT}"
+curl ${NANOTECH_HELP_URL2} ${CURL_OPTIONS} >> "${NANOTECH_HELP_TXT}"
 curl ${RECEPTION_URL} ${CURL_OPTIONS} > "${RECEPTION_TXT}"
 
 NANOTECH_HELP_COUNT=`grep '<td class=\"subject\"><a href=\"\/issues' ${NANOTECH_HELP_TXT} | wc -l | awk '{printf "%d", $1}'`
