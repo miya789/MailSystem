@@ -153,7 +153,7 @@ case $MEETING_PLACE in
       if [ $ZOOM_DATE = $DATE ] && [ $ZOOM_TIME = $MEETING_TIME ]; then
         MEETING_ZOOM_URL=`echo "$line" | cut -d',' -f3`
         MEETING_ZOOM_PASSWORD=`echo "$line" | cut -d',' -f4`
-        printf "$MEETING_ZOOM_URL $MEETING_ZOOM_PASSWORD\n"
+        printf "Zoom URL: ${MEETING_ZOOM_URL} & password: ${MEETING_ZOOM_PASSWORD}.\n" | sed "s/^/  /g" >> ${LOG_FILE}
       fi
       i=$(expr $i + 1)
     done
