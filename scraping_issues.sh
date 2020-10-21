@@ -39,21 +39,23 @@ touch ${data_file}
   echo "**ナノテクヘルプ"
 ) >> ${data_file}
 
+curl ${RECEPTION_URL} ${CURL_OPTIONS} > "${RECEPTION_TXT}"
 curl ${NANOTECH_HELP_URL} ${CURL_OPTIONS} > "${NANOTECH_HELP_TXT}"
 curl ${NANOTECH_HELP_URL2} ${CURL_OPTIONS} >> "${NANOTECH_HELP_TXT}"
-curl ${RECEPTION_URL} ${CURL_OPTIONS} > "${RECEPTION_TXT}"
-
-NANOTECH_HELP_COUNT=`grep '<td class=\"subject\"><a href=\"\/issues' ${NANOTECH_HELP_TXT} | wc -l | awk '{printf "%d", $1}'`
-i=$NANOTECH_HELP_COUNT
-while [ $i -ne 0 ]; do
-  sed -n 's/<td class=\"subject\"><a href=\"\/issues\/\(.*\)\">\(.*\)<\/a><\/td>$/- [[#\1 \2>http:\/\/mozart.if.t.u-tokyo.ac.jp:3000\/issues\/\1]]/p' ${NANOTECH_HELP_TXT} | tail -${i} | head -1 | sed 's/^    //g' >> ${data_file}
-  i=$(expr $i - 1)
-done
 
 RECEPTION_COUNT=`grep '<td class=\"subject\"><a href=\"\/issues' ${RECEPTION_TXT} | wc -l | awk '{printf "%d", $1}'`
 i=$RECEPTION_COUNT
 while [ $i -ne 0 ]; do
   sed -n 's/<td class=\"subject\"><a href=\"\/issues\/\(.*\)\">\(.*\)<\/a><\/td>$/- [[#\1 \2>http:\/\/mozart.if.t.u-tokyo.ac.jp:3000\/issues\/\1]]/p' ${RECEPTION_TXT} | tail -${i} | head -1 | sed 's/^    //g' >> ${data_file}
+  i=$(expr $i - 1)
+done
+
+echo "" >> ${data_file}
+
+NANOTECH_HELP_COUNT=`grep '<td class=\"subject\"><a href=\"\/issues' ${NANOTECH_HELP_TXT} | wc -l | awk '{printf "%d", $1}'`
+i=$NANOTECH_HELP_COUNT
+while [ $i -ne 0 ]; do
+  sed -n 's/<td class=\"subject\"><a href=\"\/issues\/\(.*\)\">\(.*\)<\/a><\/td>$/- [[#\1 \2>http:\/\/mozart.if.t.u-tokyo.ac.jp:3000\/issues\/\1]]/p' ${NANOTECH_HELP_TXT} | tail -${i} | head -1 | sed 's/^    //g' >> ${data_file}
   i=$(expr $i - 1)
 done
 
