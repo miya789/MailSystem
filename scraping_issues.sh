@@ -32,12 +32,41 @@ if [ -e ${data_file} ]; then
 fi
 touch ${data_file}
 
+# Calculate date
+# send_mail_to_executive.sh から拝借
+SCHEDULE_FILENAME="config/executive_mail.csv"
+SCHEDULE_FILE="${dir}${SCHEDULE_FILENAME}"
+
+TODAY=`date +%Y/%m/%d`
+
+printf "Checking if there is the meeting on ${TODAY}...\n" | sed "s/^/  /g"  >> ${LOG_FILE}
+should_scrape_issues=0
+COUNT=`grep '' ${SCHEDULE_FILE} | wc -l | awk '{printf "%d", $1}'`
+schedule_i=2
+while [ $schedule_i -le $COUNT ] && [ $should_scrape_issues -eq 0 ]; do
+  line=`cat $SCHEDULE_FILE | head -$schedule_i | tail -1`
+  printf "[${schedule_i}/${COUNT}]: ${line}\n" | sed "s/^/    /g" >> ${LOG_FILE}
+  DATE=`echo "$line" | cut -d',' -f1`
+  if [ $DATE = $TODAY ]; then
+    MEETING_TIME=`echo "$line" | cut -d',' -f2`
+    MEETING_PLACE=`echo "$line" | cut -d',' -f3`
+    printf "We have the meeting from ${MEETING_TIME} on ${DATE} at ${MEETING_PLACE}.\n" | sed "s/^/  /g" >> ${LOG_FILE}
+    should_scrape_issues=1
+  fi
+  schedule_i=$(expr $schedule_i + 1)
+done
+
+if [ $should_scrape_issues -eq 0 ]; then
+  printf "There is no meeting on today (${TODAY}).\n\n" | sed "s/^/  /g" >> ${LOG_FILE}
+  exit 0
+fi
+
 (
   echo "[[Executive Meeting]]"
   echo ""
   echo "#contents"
   echo ""
-  echo "*2020/4/16 10:00- @セミナー室2"
+  echo "*${DATE} ${MEETING_TIME}- @${MEETING_PLACE}"
   echo "- 出席"
   echo "--"
   echo ""
@@ -79,5 +108,24 @@ done
   echo ""
   echo "***Executive Meetings"
   echo ",Date & Time,Location,Contents"
-  echo ",2020/05/07(木), 10:00 ~ 12:00,セミナー室2"
 ) >> ${data_file}
+
+# Calculate date
+# send_mail_to_executive.sh から拝借
+# schedule_i を使い回してる
+
+CALENDAR_FILENAME="config/executive_calendar.csv"
+CALENDAR_FILE="${dir}${CALENDAR_FILENAME}"
+
+while [ $schedule_i -le $COUNT ]; do
+  line=`cat $CALENDAR_FILE | head -$schedule_i | tail -1`
+  printf "[${schedule_i}/${COUNT}]: ${line}\n" | sed "s/^/    /g" >> ${LOG_FILE}
+  DATE=`echo "$line" | cut -d',' -f1`
+  MEETING_START_TIME=`echo "$line" | cut -d',' -f2`
+  MEETING_END_TIME=`echo "$line" | cut -d',' -f4`
+  MEETING_CONTENTS=`echo "$line" | cut -d',' -f6`
+  day_of_week=`date -d ${DATE} "+%a"`
+  echo ",${DATE}(${day_of_week}),${MEETING_START_TIME} ~ ${MEETING_END_TIME},${MEETING_CONTENTS}" | sed "s/^/      /g" >> ${LOG_FILE}
+  echo ",${DATE}(${day_of_week}),${MEETING_START_TIME} ~ ${MEETING_END_TIME},${MEETING_CONTENTS}" >> ${data_file}
+  schedule_i=$(expr $schedule_i + 1)
+done
