@@ -16,10 +16,26 @@ printf "  Loading env file...\n\n" >> ${LOG_FILE}
 
 . "${CONFIG_DIR}/.env"
 
+usage_exit() {
+  echo "Usage: $0 [-p] ..." 1>&2
+  exit 1
+}
+PROXY_OPT=""
+while getopts ph FLAG; do
+  case $FLAG in
+    p ) PROXY_OPT="--socks5 ${PROXY}"
+      ;;
+    h ) usage_exit
+      ;;
+    \? ) usage_exit
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
 
 NANOTECH_HELP_TXT="${TMP_DIR}/nanotech_help.txt"
 RECEPTION_TXT="${TMP_DIR}/reception.txt"
-CURL_OPTIONS="--socks5 ${PROXY} --digest -u ${USER}:${PASSWORD} -v"
+CURL_OPTIONS="--digest -u ${USER}:${PASSWORD} -v ${PROXY_OPT}"
 WAIT_TIME=3
 
 # Scraping
