@@ -65,5 +65,5 @@ func GetScheduleBy(targetDate time.Time, mtg meeting_type.MeetingType) (*MailSch
 		}
 	}
 
-	return nil, nil, fmt.Errorf("There is no meetings")
+	return nil, nil, fmt.Errorf("There is no meetings in %s.", targetDate.Format(TimeLayout))
 }

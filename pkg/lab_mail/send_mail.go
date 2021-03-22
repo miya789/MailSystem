@@ -9,7 +9,7 @@ import (
 	"net/smtp"
 )
 
-func sendSMTPMail(host, message string) error {
+func (r *ReminderMail) sendSMTPMail(host, message string) error {
 	server := net.JoinHostPort(host, portSMTP)
 
 	// Here is the key, you need to call tls.Dial instead of smtp.Dial
@@ -21,10 +21,10 @@ func sendSMTPMail(host, message string) error {
 	}
 
 	// To && From
-	if err = c.Mail(from.Address); err != nil {
+	if err = c.Mail(r.from.Address); err != nil {
 		return fmt.Errorf("Failed to c.Mail(): %w", err)
 	}
-	if err = c.Rcpt(to.Address); err != nil {
+	if err = c.Rcpt(r.to.Address); err != nil {
 		return fmt.Errorf("Failed to c.Rcpt(): %w", err)
 	}
 
@@ -45,7 +45,7 @@ func sendSMTPMail(host, message string) error {
 	return nil
 }
 
-func sendSMTPMailSSL(host, message string) error {
+func (r *ReminderMail) sendSMTPMailSSL(host, message string) error {
 	server := net.JoinHostPort(host, portSMTPs)
 
 	// TLS config
@@ -67,15 +67,15 @@ func sendSMTPMailSSL(host, message string) error {
 	}
 
 	// Auth
-	if err = c.Auth(smtp.PlainAuth("", userID, mailPassword, host)); err != nil {
+	if err = c.Auth(smtp.PlainAuth("", r.userID, r.mailPassword, host)); err != nil {
 		return fmt.Errorf("Failed to c.Auth(): %w", err)
 	}
 
 	// To && From
-	if err = c.Mail(from.Address); err != nil {
+	if err = c.Mail(r.from.Address); err != nil {
 		return fmt.Errorf("Failed to c.Mail(): %w", err)
 	}
-	if err = c.Rcpt(to.Address); err != nil {
+	if err = c.Rcpt(r.to.Address); err != nil {
 		return fmt.Errorf("Failed to c.Rcpt(): %w", err)
 	}
 
@@ -97,13 +97,13 @@ func sendSMTPMailSSL(host, message string) error {
 }
 
 func SendMail(mtg meeting_type.MeetingType, ms *schedule.MailSchedule, mzs *schedule.MailZoomSchedule) error {
-	message, err := buildMessage(mtg, ms, mzs)
-	if err != nil {
+	r := New(mtg, ms, mzs)
+
+	if err := r.buildMessage(); err != nil {
 		return err
 	}
 
 	// Connect to the SMTP Server
 	mozartHost := "smtp.if.t.u-tokyo.ac.jp"
-	return sendSMTPMail(mozartHost, message)
-	// return sendSMTPMailSSL(mozartHost, message)
+	return r.sendSMTPMail(mozartHost, r.message)
 }

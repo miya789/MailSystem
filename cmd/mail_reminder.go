@@ -36,25 +36,30 @@ func main() {
 
 	// Check whether today is holiday
 	now := time.Now()
+	log.Printf("Checking whether today is a holiday or not... (Today: %s)\n", now.Format(schedule.TimeLayout))
 	if schedule.IsHoliday(now) {
-		log.Printf("Today is %s.\n", now.Format(schedule.TimeLayout))
+		log.Printf("Today (%s) is a holiday, so finished.\n", now.Format(schedule.TimeLayout))
 		return
 	}
+	log.Printf("Today (%s) is not a holiday, so continuing...\n", now.Format(schedule.TimeLayout))
 
 	// Get next weekday
 	t := now.AddDate(0, 0, 1)
+	t = now.AddDate(0, 0, 3)
 	t = schedule.GetNextWeekday(t)
-	log.Printf("Target date is %s.\n", t.Format(schedule.TimeLayout))
+	log.Printf("The next weekday is %s.\n", t.Format(schedule.TimeLayout))
 
 	// Get the next meeting specified with next weekday
 	ms, mz, err := schedule.GetScheduleBy(t, mtg)
 	if err != nil {
 		log.Println(err)
+		log.Printf("The announced schedule (%s) do not exist, so finished.\n", t.Format(schedule.TimeLayout))
 		return
 	}
-	log.Printf("Next meeting is %s.\n", ms)
+	log.Printf("The announced schedule (%s) is %s, so continuing...\n", t.Format(schedule.TimeLayout), ms)
 
 	// Send reminder mail
+	log.Printf("Sending reminder mail...\n")
 	if err := lab_mail.SendMail(mtg, ms, mz); err != nil {
 		log.Println(err)
 		return

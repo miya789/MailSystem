@@ -5,10 +5,32 @@ import (
 	"LabMeeting/pkg/schedule"
 	"fmt"
 	"log"
+	"mime"
 	"net/mail"
 	"strconv"
 	"time"
 )
+
+type ReminderMail struct {
+	userID       string
+	mailPassword string
+	grade        string
+	name_jp      string
+	name_en      string
+
+	mtg              meeting_type.MeetingType
+	mailSchedule     *schedule.MailSchedule
+	mailZoomSchedule *schedule.MailZoomSchedule
+
+	from *mail.Address
+	to   *mail.Address
+	bccs []*mail.Address
+
+	header  string
+	subject string
+	body    string
+	message string
+}
 
 func getMeetingPlace(key string) *MeetingPlace {
 	meetingPlaces := map[string]*MeetingPlace{
@@ -49,12 +71,35 @@ func getMeetingPlace(key string) *MeetingPlace {
 	return v
 }
 
-func buildBody(from, to *mail.Address, subject, body string) string {
+func (r *ReminderMail) setAddress() {
+	r.from = me
+	switch r.mtg {
+	case meeting_type.TeamMEMS:
+		r.to = teamMEMS
+	case meeting_type.Executive:
+		r.to = executive
+		r.bccs = executive_bccs
+	default:
+	}
+
+	log.Printf("Setting from: %s", r.from)
+	log.Printf("Setting to: %s", r.to)
+	log.Printf("Setting bcc: %s", r.bccs)
+}
+
+func buildHaeder(from, to *mail.Address, bccs []*mail.Address, subject, body string) string {
 	// Setup headers
 	headers := make(map[string]string)
 	headers["From"] = from.String()
 	headers["To"] = to.String()
-	headers["Bcc"] = bcc.String()
+	// bcc のみ複数扱う為にこうしている
+	if bccs != nil {
+		var bccText string
+		for _, v := range bccs {
+			bccText += v.String() + ","
+		}
+		headers["Bcc"] = bccText
+	}
 	headers["Subject"] = subject
 	headers["Content-Type"] = "text/plain; charset=UTF-8"
 	headers["Content-Transfer-Encoding"] = "8bit"
@@ -69,72 +114,95 @@ func buildBody(from, to *mail.Address, subject, body string) string {
 	return message + "\r\n" + body
 }
 
-func buildMessage(mtg meeting_type.MeetingType, mailSchedule *schedule.MailSchedule, mailZoomSchedule *schedule.MailZoomSchedule) (string, error) {
-	place := getMeetingPlace(mailSchedule.Location)
+func (r *ReminderMail) buildSubject() error {
+	wdays := [...]string{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
+
+	s, err := time.Parse("2006/01/02", r.mailSchedule.StartDate)
+	if err != nil {
+		return err
+	}
+	dateMessageEN := r.mailSchedule.StartDate + "(" + wdays[s.Weekday()] + ")"
+
+	subjStr := "The next " + r.mtg.CaptitalString() + " Meeting【" + dateMessageEN + " " + r.mailSchedule.StartTime + " - @" + getMeetingPlace(r.mailSchedule.Location).jp + "】"
+	log.Println(subjStr)
+	r.subject = mime.QEncoding.Encode("utf-8", subjStr)
+	return nil
+}
+
+func (r *ReminderMail) buildBody() error {
+	place := getMeetingPlace(r.mailSchedule.Location)
 	var (
 		wdays = [...]string{"日", "月", "火", "水", "木", "金", "土"}
 
-		meetingTime         = mailSchedule.StartTime
+		meetingTime         = r.mailSchedule.StartTime
 		meetingPlaceJP      = place.jp
 		meetingPlaceEN      = place.en
-		meetingZoomURL      = mailZoomSchedule.URL
-		meetingZoomPassword = mailZoomSchedule.Password
+		meetingZoomURL      = r.mailZoomSchedule.URL
+		meetingZoomPassword = r.mailZoomSchedule.Password
 	)
 
-	// Prepare mailSchedule.StartDate
-	s, err := time.Parse("2006/01/02", mailSchedule.StartDate)
+	// Prepare r.mailSchedule.StartDate
+	s, err := time.Parse("2006/01/02", r.mailSchedule.StartDate)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	// Prepare DATE_FOR_CONTENTS
 	dateMessageJP := s.Format("01/02") + "(" + wdays[s.Weekday()] + ")"
 	dateMessageEN := s.Weekday().String() + ", " + s.Month().String() + " " + strconv.Itoa(s.Day())
 
-	subj := "The next " + mtg.CaptitalString() + " Meeting【" + dateMessageEN + " " + meetingTime + " - @" + meetingPlaceJP + "}】"
-
 	body := ""
-	body += mtg.CaptitalString() + "の皆様\n"
+	body += r.mtg.CaptitalString() + "の皆様\n"
 	body += "\n"
-	body += grade + "の" + name_en + "です．\n"
-
-	if mailSchedule.Location == "Zoom" {
-		body += "次回の" + mtg.CaptitalString() + " Meetingは" + dateMessageJP + meetingTime + " - @Zoomで行われます．\n"
+	body += r.grade + "の" + r.name_en + "です．\n"
+	if r.mailSchedule.Location == "Zoom" {
+		body += "次回の" + r.mtg.CaptitalString() + " Meetingは" + dateMessageJP + meetingTime + " - @Zoomで行われます．\n"
 		body += "  Zoom URL: " + meetingZoomURL + "\n"
 		body += "  Zoom Password: " + meetingZoomPassword + "\n"
 	} else {
-		body += "次回の" + mtg.CaptitalString() + " Meetingは" + dateMessageJP + " " + meetingTime + " - @" + meetingPlaceJP + "で行われます．\n"
+		body += "次回の" + r.mtg.CaptitalString() + " Meetingは" + dateMessageJP + " " + meetingTime + " - @" + meetingPlaceJP + "で行われます．\n"
 	}
-
 	body += "尚，ミーティングに関する連絡はこちらのメーリングリストのメッセージ宛で返信をお願いいたします．\n"
 	body += "よろしくお願いいたします．\n"
 	body += "\n"
 	body += "\n"
-
-	body += "Dear " + mtg.CaptitalString() + " members,\n"
+	// en
+	body += "Dear " + r.mtg.CaptitalString() + " members,\n"
 	body += "\n"
-	body += "I'm " + grade + " " + name_en + ".\n"
-	if mailSchedule.Location == "Zoom" {
-		body += "The next " + mtg.CaptitalString() + " Meeting is going to be held at the Zoom from " + meetingTime + " on " + dateMessageEN + ".\n"
+	body += "I'm " + r.grade + " " + r.name_en + ".\n"
+	if r.mailSchedule.Location == "Zoom" {
+		body += "The next " + r.mtg.CaptitalString() + " Meeting is going to be held at the Zoom from " + meetingTime + " on " + dateMessageEN + ".\n"
 		body += "  Zoom URL: " + meetingZoomURL + "\n"
 		body += "  Zoom Password: " + meetingZoomPassword + "\n"
 	} else {
-		body += "The next " + mtg.CaptitalString() + " Meeting is going to be held at the " + meetingPlaceEN + " from " + meetingTime + " on " + dateMessageEN + "."
+		body += "The next " + r.mtg.CaptitalString() + " Meeting is going to be held at the " + meetingPlaceEN + " from " + meetingTime + " on " + dateMessageEN + "."
 	}
-	body += "\n"
 	body += "Please attend the meeting.\n"
 	body += "Thank you.\n"
 	body += "\n"
-
 	// signature
 	body += "--\n"
 	body += "Mita Lab. Meeting Reminder\n"
 	body += "\n"
 	body += "MAIL: hosa@if.t.u-tokyo.ac.jp"
 
-	// Setup message
-	message := buildBody(from, to, subj, body)
-	log.Printf("\n--------------------------------------------------\n%s\n--------------------------------------------------\n", message)
+	r.body = body
 
-	return message, nil
+	return nil
+}
+
+func (r *ReminderMail) buildMessage() error {
+	r.setAddress()
+
+	// Setup message
+	if err := r.buildBody(); err != nil {
+		return err
+	}
+	if err := r.buildSubject(); err != nil {
+		return err
+	}
+	r.message = buildHaeder(r.from, r.to, r.bccs, r.subject, r.body)
+	log.Printf("The send mail is as follows...\n--------------------------------------------------\n%s\n--------------------------------------------------\n", r.message)
+
+	return nil
 }
