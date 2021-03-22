@@ -1,11 +1,11 @@
 package main
 
 import (
+	"LabMeeting/pkg/lab_flag"
 	"LabMeeting/pkg/meeting_type"
 	"LabMeeting/pkg/memswiki"
 	"LabMeeting/pkg/redmine"
 	"LabMeeting/pkg/schedule"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -21,15 +21,16 @@ func main() {
 	RECEPTION_URL := os.Getenv("RECEPTION_URL")
 	NANOTECH_HELP_URL := os.Getenv("NANOTECH_HELP_URL")
 	// TEST_URL := os.Getenv("TEST_URL")
-
-	var proxy bool
-	flag.BoolVar(&proxy, "p", false, "false\t(default)")
-	flag.Parse()
-	log.Printf("Setting proxy: \"%+v\"", proxy)
+	useProxy, err := lab_flag.GetUseProxy()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	log.Printf("Setting useProxy: \"%+v\"", useProxy)
 
 	log.Println("Getting issues...")
 	r := &redmine.Redmine{
-		UseProxy: proxy,
+		UseProxy: useProxy,
 	}
 	receptionIssues, err := r.GetIssues(RECEPTION_URL)
 	if err != nil {

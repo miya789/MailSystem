@@ -21,3 +21,10 @@ func GetMeetingType() (meeting_type.MeetingType, error) {
 	}
 	return meeting_type.MeetingType(mtg), nil
 }
+
+func GetUseProxy() (bool, error) {
+	var useProxy bool
+	flag.BoolVar(&useProxy, "p", false, "false\t(default)")
+	flag.Parse()
+	return useProxy, nil
+}

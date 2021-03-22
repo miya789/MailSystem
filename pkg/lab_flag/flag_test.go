@@ -34,3 +34,25 @@ package lab_flag
 // 		})
 // 	}
 // }
+
+// func TestGetUseProxy(t *testing.T) {
+// 	tests := []struct {
+// 		name    string
+// 		want    bool
+// 		wantErr bool
+// 	}{
+// 		// TODO: Add test cases.
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			got, err := GetUseProxy()
+// 			if (err != nil) != tt.wantErr {
+// 				t.Errorf("GetUseProxy() error = %v, wantErr %v", err, tt.wantErr)
+// 				return
+// 			}
+// 			if got != tt.want {
+// 				t.Errorf("GetUseProxy() = %v, want %v", got, tt.want)
+// 			}
+// 		})
+// 	}
+// }
