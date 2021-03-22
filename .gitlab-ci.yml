@@ -1,0 +1,9 @@
+stages:
+  - test
+
+test:
+  tags:
+    - golang:1.14
+  stage: test
+  script:
+    - go test -v -cover ./...
