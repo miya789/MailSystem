@@ -86,7 +86,7 @@ var (
 )
 
 func init() {
-	if err := godotenv.Load("../../config/.env"); err != nil {
+	if err := godotenv.Load("../config/.env"); err != nil {
 		log.Println(fmt.Errorf("Failed to getIssues(): failed to read \".env\""))
 		return
 	}

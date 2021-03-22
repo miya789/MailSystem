@@ -4,6 +4,7 @@ import (
 	"LabMeeting/pkg/meeting_type"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/gocarina/gocsv"
 )
@@ -40,4 +41,25 @@ func Read(mt meeting_type.MeetingType, st ScheduleType) (interface{}, error) {
 	}
 
 	return nil, nil
+}
+
+func GetSchedulesAfter(t time.Time, mtg meeting_type.MeetingType, st ScheduleType) (interface{}, error) {
+	cs, err := Read(mtg, st)
+	if err != nil {
+		return nil, err
+	}
+	allCalendarSchdules := cs.([]*CalendarSchedule)
+	var returnCalendarSchdules []*CalendarSchedule
+	var layout = "2006/01/02"
+	for _, v := range allCalendarSchdules {
+		s, err := time.Parse(layout, v.StartDate)
+		if err != nil {
+			return nil, err
+		}
+		if s.After(t) {
+			returnCalendarSchdules = append(returnCalendarSchdules, v)
+		}
+	}
+
+	return returnCalendarSchdules, nil
 }

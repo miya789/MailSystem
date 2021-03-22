@@ -10,6 +10,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
+)
 
 	"github.com/joho/godotenv"
 )
@@ -42,14 +44,13 @@ func main() {
 	}
 
 	log.Println("Loading schedules...")
-	cs, err := schedule.Read(meeting_type.Executive, schedule.Calendar)
+	now := time.Now()
+	cs, err := schedule.GetSchedulesAfter(now, meeting_type.Executive, schedule.Calendar)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	calendarSchdules := cs.([]*schedule.CalendarSchedule)
-
-	// now := time.Now()
 
 	template, err := memswiki.WriteTemplate(receptionIssues, nanotechHelpIssues, calendarSchdules)
 	if err != nil {
