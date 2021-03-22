@@ -22,3 +22,9 @@ tmp/
 config/*
 !config/.private_info.sh.sample
 !config/.private_info.csh.sample
+
+# output
+out/
+
+# setting
+.vscode
