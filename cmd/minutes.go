@@ -63,6 +63,7 @@ func main() {
 		log.Println(fmt.Errorf("Failed to Write(): %w", err))
 		return
 	}
+	log.Println(fmt.Errorf("Generating template as \"%s\"", outPth))
 
 	return
 }

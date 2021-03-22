@@ -74,7 +74,7 @@ func WriteTemplate(receptionIssues, nanotechHelpIssues []redmine.Issue, calendar
 ,Date & Time,Location,Contents
 ` + dates
 
-	log.Printf("\n--------------------------------------------------\n%s\n--------------------------------------------------\n", templateText)
+	log.Printf("The generated template is as follows...\n--------------------------------------------------\n%s\n--------------------------------------------------\n", templateText)
 
 	return templateText, nil
 }
