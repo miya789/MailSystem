@@ -45,7 +45,6 @@ func main() {
 
 	// Get next weekday
 	t := now.AddDate(0, 0, 1)
-	t = now.AddDate(0, 0, 3)
 	t = schedule.GetNextWeekday(t)
 	log.Printf("The next weekday is %s.\n", t.Format(schedule.TimeLayout))
 
