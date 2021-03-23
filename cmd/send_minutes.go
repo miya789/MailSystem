@@ -36,7 +36,7 @@ func main() {
 			for scanner.Scan() {
 				if strings.TrimSpace(strings.ToLower(scanner.Text())) == "y" {
 					break
-				} else {
+				} else if strings.TrimSpace(strings.ToLower(scanner.Text())) == "n" {
 					fmt.Println("スクリプトを停止します．")
 					os.Exit(0)
 				}
@@ -78,7 +78,7 @@ func main() {
 	for scanner.Scan() {
 		if strings.TrimSpace(strings.ToLower(scanner.Text())) == "y" {
 			break
-		} else {
+		} else if strings.TrimSpace(strings.ToLower(scanner.Text())) == "n" {
 			fmt.Println("スクリプトを停止します．")
 			os.Exit(0)
 		}
