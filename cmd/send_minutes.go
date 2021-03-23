@@ -15,12 +15,12 @@ import (
 func main() {
 	// 議事録に生成するページのアドレスを指定
 	// 上書きはできない筈だが，存在するアドレスには注意すること
-	var num *int
+	var num int
 	fmt.Println("\"Executive Meeting/[日付]\" の[日付]を入力して下さい．")
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		n, err := strconv.Atoi(scanner.Text())
-		num = &n
+		num = n
 		if err != nil || len(scanner.Text()) != 8 {
 			fmt.Println("8桁の数値を入力してください．(例: 20210101)")
 		} else {
@@ -46,7 +46,17 @@ func main() {
 	}
 
 	// 議事録として登録するファイルの読み込み
-	file, err := os.OpenFile("write.txt", os.O_RDONLY, os.ModePerm)
+	var filePath string
+	fmt.Println("読み込むテキストファイルを指定してください．(例: ../giziroku.txt)")
+	scanner = bufio.NewScanner(os.Stdin)
+	filePath = scanner.Text()
+	for scanner.Scan() {
+		filePath = scanner.Text()
+		if scanner.Text() != "" {
+			break
+		}
+	}
+	file, err := os.OpenFile(filePath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		log.Println(fmt.Errorf("Failed to Read(): %w", err))
 		return
@@ -60,8 +70,8 @@ func main() {
 
 	// 議事録をWikiへ登録
 	msg := string(b)
-	fmt.Printf("\"Executive Meeting/%d\" に書き込む内容を表示します．\n%s\n", *num, msg)
-	fmt.Printf("\"Executive Meeting/%d\" に以上の内容を本当に書き込んでよろしいですか? [y/N]\n", *num)
+	fmt.Printf("\"Executive Meeting/%d\" に書き込む内容を表示します．\n%s\n", num, msg)
+	fmt.Printf("\"Executive Meeting/%d\" に以上の内容を本当に書き込んでよろしいですか? [y/N]\n", num)
 	scanner = bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		if strings.TrimSpace(strings.ToLower(scanner.Text())) == "y" {
@@ -73,7 +83,7 @@ func main() {
 	}
 	executive_list := "http://mozart.if.t.u-tokyo.ac.jp/memswiki/index.php?Executive%20Meeting"
 	fmt.Println("今回作成した記事へのリンクを一覧ページへ追加するのは手動で行ったください．\n", executive_list)
-	memswiki.WriteMinute(*num, msg)
+	memswiki.WriteMinute(num, msg)
 
 	// 議事録をメールへ送信
 	fmt.Println("メールにも流しますか? [y/N]")
