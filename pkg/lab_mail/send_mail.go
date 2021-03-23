@@ -96,14 +96,28 @@ func (r *ReminderMail) sendSMTPMailSSL(host, message string) error {
 	return nil
 }
 
-func SendMail(mtg meeting_type.MeetingType, ms *schedule.MailSchedule, mzs *schedule.MailZoomSchedule) error {
+func SendReminderMail(mtg meeting_type.MeetingType, ms *schedule.MailSchedule, mzs *schedule.MailZoomSchedule) error {
 	r := New(mtg, ms, mzs)
 
-	if err := r.buildMessage(); err != nil {
+	if err := r.buildReminderMessage(); err != nil {
 		return err
 	}
 
 	// Connect to the SMTP Server
 	mozartHost := "smtp.if.t.u-tokyo.ac.jp"
 	return r.sendSMTPMail(mozartHost, r.message)
+}
+
+// コメントアウトした行は削除してメール送信する
+func SendMinutesMail(mtg meeting_type.MeetingType, date, msg string) error {
+	// TODO: ミーティングスケジュールは不要なので仕様を変える
+	r := New(mtg, nil, nil)
+
+	if err := r.buildMessage(msg, date); err != nil {
+		return err
+	}
+
+	// Connect to the SMTP Server
+	mozartHost := "smtp.if.t.u-tokyo.ac.jp"
+	return r.sendSMTPMailSSL(mozartHost, r.message)
 }

@@ -7,6 +7,7 @@ import (
 	"log"
 	"mime"
 	"net/mail"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -114,7 +115,7 @@ func buildHaeder(from, to *mail.Address, bccs []*mail.Address, subject, body str
 	return message + "\r\n" + body
 }
 
-func (r *ReminderMail) buildSubject() error {
+func (r *ReminderMail) buildReminderSubject() error {
 	wdays := [...]string{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
 
 	s, err := time.Parse("2006/01/02", r.mailSchedule.StartDate)
@@ -129,7 +130,7 @@ func (r *ReminderMail) buildSubject() error {
 	return nil
 }
 
-func (r *ReminderMail) buildBody() error {
+func (r *ReminderMail) buildReminderBody() error {
 	place := getMeetingPlace(r.mailSchedule.Location)
 	var (
 		wdays = [...]string{"日", "月", "火", "水", "木", "金", "土"}
@@ -190,18 +191,55 @@ func (r *ReminderMail) buildBody() error {
 
 	return nil
 }
+func buildSubject(date string) string {
+	t, _ := time.Parse("20060102", date)
+	subjStr := "Executive meeting 議事録 " + t.Format("2006/01/02")
+	return mime.QEncoding.Encode("utf-8", subjStr)
+}
 
-func (r *ReminderMail) buildMessage() error {
+func (r *ReminderMail) buildBody(msg string) string {
+	// コメントアウトは削除
+	rep := regexp.MustCompilePOSIX(`^// .*?$\n`)
+	msgMail := rep.ReplaceAllString(msg, "")
+
+	body := ""
+	body += "Executiveの皆様\n"
+	body += "\n"
+	body += "議事録をお送りします．\n"
+	body += "不備がございましたらご指摘ください．\n"
+	body += "\n"
+	body += "よろしくお願いいたします．\n"
+	body += "\n"
+	body += r.name_jp + "\n"
+	body += "\n"
+	body += msgMail
+
+	return body
+}
+
+func (r *ReminderMail) buildReminderMessage() error {
 	r.setAddress()
 
 	// Setup message
-	if err := r.buildBody(); err != nil {
+	if err := r.buildReminderBody(); err != nil {
 		return err
 	}
-	if err := r.buildSubject(); err != nil {
+	if err := r.buildReminderSubject(); err != nil {
 		return err
 	}
 	r.message = buildHaeder(r.from, r.to, r.bccs, r.subject, r.body)
+	log.Printf("The send mail is as follows...\n--------------------------------------------------\n%s\n--------------------------------------------------\n", r.message)
+
+	return nil
+}
+
+func (r *ReminderMail) buildMessage(msg, date string) error {
+	r.setAddress()
+
+	// Setup message
+	body := r.buildBody(msg)
+	subject := buildSubject(date)
+	r.message = buildHaeder(r.from, r.to, r.bccs, subject, body)
 	log.Printf("The send mail is as follows...\n--------------------------------------------------\n%s\n--------------------------------------------------\n", r.message)
 
 	return nil
