@@ -27,7 +27,7 @@ func digestPost(method, host, uri string, additionalHeaders map[string]string, p
 		return nil, err
 	}
 	defer resp.Body.Close()
-	log.Printf("getting digest key...\n\x1b[34m%s\x1b[0m\n", resp)
+	log.Printf("getting digest key...\n\x1b[34m%#v\x1b[0m\n", resp)
 	if resp.StatusCode != http.StatusUnauthorized {
 		return nil, fmt.Errorf("Recieved status code '%v' auth skipped", resp.StatusCode)
 	}
@@ -63,7 +63,7 @@ func digestPost(method, host, uri string, additionalHeaders map[string]string, p
 			if err != nil {
 				return nil, fmt.Errorf("ErrStatusContradiction")
 			}
-			log.Printf("Redirect:\n\x1b[33m%s\x1b[0m\n", resp)
+			log.Printf("Redirect:\n\x1b[33m%#v\x1b[0m\n", resp)
 
 			host := next.Scheme + "://" + next.Host
 			uri := next.Path + "?" + next.RawQuery
@@ -74,11 +74,11 @@ func digestPost(method, host, uri string, additionalHeaders map[string]string, p
 			}
 			return redirectRes, nil
 		}
-		log.Printf("not OK:\n\x1b[31m%s\x1b[0m\n", resp)
+		log.Printf("not OK:\n\x1b[31m%#v\x1b[0m\n", resp)
 		log.Printf("not OK string(body):\n\x1b[31m%s\x1b[0m\n", string(body))
 		return nil, fmt.Errorf("401 desu")
 	}
-	log.Printf("Success:\n\x1b[32m%s\x1b[0m\n", resp)
+	log.Printf("Success:\n\x1b[32m%#v\x1b[0m\n", resp)
 
 	return body, nil
 }

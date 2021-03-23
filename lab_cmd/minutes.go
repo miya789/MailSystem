@@ -48,7 +48,7 @@ func GenerateMinutesTemplate(useProxy bool) {
 
 	template, err := memswiki.WriteTemplate(receptionIssues, nanotechHelpIssues, calendarSchdules)
 	if err != nil {
-		fmt.Errorf("Failed to GetScheduleBy(): %w", err)
+		log.Println(fmt.Errorf("Failed to GetScheduleBy(): %w", err))
 		return
 	}
 
