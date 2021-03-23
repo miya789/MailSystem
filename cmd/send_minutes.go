@@ -48,13 +48,14 @@ func main() {
 	}
 
 	// 議事録として登録するファイルの読み込み
-	var filePath string
-	fmt.Println("読み込むテキストファイルを指定してください．(例: ../giziroku.txt)")
+	filePath := "../config/minutes.txt"
+	fmt.Println("読み込むテキストファイルを指定してください．(Default: ../config/minutes.txt)")
 	scanner = bufio.NewScanner(os.Stdin)
-	filePath = scanner.Text()
 	for scanner.Scan() {
-		filePath = scanner.Text()
 		if scanner.Text() != "" {
+			filePath = scanner.Text()
+			break
+		} else {
 			break
 		}
 	}
