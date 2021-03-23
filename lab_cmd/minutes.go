@@ -1,7 +1,6 @@
 package lab_cmd
 
 import (
-	"LabMeeting/pkg/lab_flag"
 	"LabMeeting/pkg/meeting_type"
 	"LabMeeting/pkg/memswiki"
 	"LabMeeting/pkg/redmine"
@@ -11,12 +10,11 @@ import (
 	"log"
 	"os"
 	"time"
-)
 
 	"github.com/joho/godotenv"
 )
 
-func GenerateMinutesTemplate() {
+func GenerateMinutesTemplate(useProxy bool) {
 	if err := godotenv.Load("../config/.env"); err != nil {
 		log.Println(fmt.Errorf("Failed to read \"../config/.env\""))
 	}
@@ -24,11 +22,6 @@ func GenerateMinutesTemplate() {
 	NANOTECH_HELP_URL := os.Getenv("NANOTECH_HELP_URL")
 	// TEST_URL := os.Getenv("TEST_URL")
 
-	useProxy, err := lab_flag.GetUseProxy()
-	if err != nil {
-		log.Println(err)
-		return
-	}
 	log.Printf("Setting useProxy: \"%+v\"", useProxy)
 
 	log.Println("Getting issues...")

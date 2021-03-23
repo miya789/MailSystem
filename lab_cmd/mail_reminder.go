@@ -1,21 +1,14 @@
 package lab_cmd
 
 import (
-	"LabMeeting/pkg/lab_flag"
 	"LabMeeting/pkg/lab_mail"
+	"LabMeeting/pkg/meeting_type"
 	"LabMeeting/pkg/schedule"
 	"log"
 	"time"
 )
 
-func SendReminderMail() {
-	// Determine meeting type
-	mtg, err := lab_flag.GetMeetingType()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
+func SendReminderMail(mtg meeting_type.MeetingType) {
 	// Check whether today is holiday
 	now := time.Now()
 	log.Printf("Checking whether today is a holiday or not... (Today: %s)\n", now.Format(schedule.TimeLayout))
