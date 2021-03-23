@@ -9,8 +9,8 @@ import (
 	"net/smtp"
 )
 
-func (r *ReminderMail) sendSMTPMail(host, message string) error {
-	server := net.JoinHostPort(host, portSMTP)
+func sendSMTPMail(host string, message *Message) error {
+	server := net.JoinHostPort(host, PORT_SMTP)
 
 	// Here is the key, you need to call tls.Dial instead of smtp.Dial
 	// for smtp servers running on 465 that require an ssl connection
@@ -21,10 +21,10 @@ func (r *ReminderMail) sendSMTPMail(host, message string) error {
 	}
 
 	// To && From
-	if err = c.Mail(r.from.Address); err != nil {
+	if err = c.Mail(message.from.Address); err != nil {
 		return fmt.Errorf("Failed to c.Mail(): %w", err)
 	}
-	if err = c.Rcpt(r.to.Address); err != nil {
+	if err = c.Rcpt(message.to.Address); err != nil {
 		return fmt.Errorf("Failed to c.Rcpt(): %w", err)
 	}
 
@@ -33,7 +33,7 @@ func (r *ReminderMail) sendSMTPMail(host, message string) error {
 	if err != nil {
 		return fmt.Errorf("Failed to c.Data(): %w", err)
 	}
-	if _, err = w.Write([]byte(message)); err != nil {
+	if _, err = w.Write([]byte(message.body)); err != nil {
 		return fmt.Errorf("Failed to w.Write(): %w", err)
 	}
 
@@ -45,8 +45,8 @@ func (r *ReminderMail) sendSMTPMail(host, message string) error {
 	return nil
 }
 
-func (r *ReminderMail) sendSMTPMailSSL(host, message string) error {
-	server := net.JoinHostPort(host, portSMTPs)
+func sendSMTPMailSSL(host string, message *Message, userID, password string) error {
+	server := net.JoinHostPort(host, PORT_SMTPs)
 
 	// TLS config
 	tlsConfig := &tls.Config{
@@ -67,15 +67,15 @@ func (r *ReminderMail) sendSMTPMailSSL(host, message string) error {
 	}
 
 	// Auth
-	if err = c.Auth(smtp.PlainAuth("", r.userID, r.mailPassword, host)); err != nil {
+	if err = c.Auth(smtp.PlainAuth("", userID, password, host)); err != nil {
 		return fmt.Errorf("Failed to c.Auth(): %w", err)
 	}
 
 	// To && From
-	if err = c.Mail(r.from.Address); err != nil {
+	if err = c.Mail(message.from.Address); err != nil {
 		return fmt.Errorf("Failed to c.Mail(): %w", err)
 	}
-	if err = c.Rcpt(r.to.Address); err != nil {
+	if err = c.Rcpt(message.to.Address); err != nil {
 		return fmt.Errorf("Failed to c.Rcpt(): %w", err)
 	}
 

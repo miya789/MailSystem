@@ -26,8 +26,8 @@ var (
 )
 
 const (
-	portSMTP  = "587"
-	portSMTPs = "465"
+	PORT_SMTP  = "587"
+	PORT_SMTPs = "465"
 )
 
 type MeetingPlace struct {
