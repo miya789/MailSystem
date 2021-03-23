@@ -90,8 +90,8 @@ func init() {
 		log.Println(fmt.Errorf("Failed to getIssues(): failed to read \".env\""))
 		return
 	}
-	redmineAPIKey = os.Getenv("redmineAPIKey")
-	proxyURL = os.Getenv("proxyURL")
+	redmineAPIKey = os.Getenv("REDMINE_API_KEY")
+	proxyURL = os.Getenv("PROXY_URL")
 	return
 }
 
