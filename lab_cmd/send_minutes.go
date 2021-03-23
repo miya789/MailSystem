@@ -1,4 +1,4 @@
-package main
+package lab_cmd
 
 import (
 	"LabMeeting/pkg/lab_mail"
@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func main() {
+func SendMinutes() {
 	// 議事録に生成するページのアドレスを指定
 	// 上書きはできない筈だが，存在するアドレスには注意すること
 	var num int
@@ -48,8 +48,8 @@ func main() {
 	}
 
 	// 議事録として登録するファイルの読み込み
-	filePath := "../config/minutes.txt"
-	fmt.Println("読み込むテキストファイルを指定してください．(Default: ../config/minutes.txt)")
+	filePath := "config/minutes.txt"
+	fmt.Println("読み込むテキストファイルを指定してください．(Default: config/minutes.txt)")
 	scanner = bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		if scanner.Text() != "" {

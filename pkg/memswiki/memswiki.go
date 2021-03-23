@@ -24,7 +24,7 @@ var (
 )
 
 func init() {
-	if err := godotenv.Load("../config/.env"); err != nil {
+	if err := godotenv.Load("config/.env"); err != nil {
 		log.Println(fmt.Errorf("Failed to read \".env\""))
 		return
 	}
@@ -66,7 +66,7 @@ func WriteTemplate(receptionIssues, nanotechHelpIssues []redmine.Issue, calendar
 
 #contents
 
-*` + "2020/09/24" + ` ` + "10:00" + `- @` + "Zoom" + `
+*` + "2021/01/01" + ` ` + "10:00" + `- @` + "Zoom" + `
 - 出席
 // 全メンバーは以下
 // ` + wikiTemplateMembers + `
@@ -120,8 +120,8 @@ var stdHeader = map[string]string{
 }
 
 func WriteMinute(date int, msg string) error {
-	log.SetFlags(log.Lshortfile)
-	log.Println("Accessing %s...", memsWiki.Scheme+"://"+memsWiki.Host)
+	log.SetFlags(log.Lshortfile) // メチャクチャ難しかったのでログを詳細に出している
+	log.Printf("Accessing %s...\n", memsWiki.Scheme+"://"+memsWiki.Host)
 
 	page := "Executive Meeting/" + strconv.Itoa(date) // 作成する議事録ページのアドレス
 

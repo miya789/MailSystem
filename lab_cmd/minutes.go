@@ -1,7 +1,6 @@
-package main
+package lab_cmd
 
 import (
-	"LabMeeting/pkg/lab_flag"
 	"LabMeeting/pkg/meeting_type"
 	"LabMeeting/pkg/memswiki"
 	"LabMeeting/pkg/redmine"
@@ -11,23 +10,18 @@ import (
 	"log"
 	"os"
 	"time"
-)
 
 	"github.com/joho/godotenv"
 )
 
-func main() {
-	if err := godotenv.Load("../config/.env"); err != nil {
-		log.Println(fmt.Errorf("Failed to read \"../config/.env\""))
+func GenerateMinutesTemplate(useProxy bool) {
+	if err := godotenv.Load("config/.env"); err != nil {
+		log.Println(fmt.Errorf("Failed to read \"config/.env\""))
 	}
 	RECEPTION_URL := os.Getenv("RECEPTION_URL")
 	NANOTECH_HELP_URL := os.Getenv("NANOTECH_HELP_URL")
 	// TEST_URL := os.Getenv("TEST_URL")
-	useProxy, err := lab_flag.GetUseProxy()
-	if err != nil {
-		log.Println(err)
-		return
-	}
+
 	log.Printf("Setting useProxy: \"%+v\"", useProxy)
 
 	log.Println("Getting issues...")
@@ -54,11 +48,11 @@ func main() {
 
 	template, err := memswiki.WriteTemplate(receptionIssues, nanotechHelpIssues, calendarSchdules)
 	if err != nil {
-		fmt.Errorf("Failed to GetScheduleBy(): %w", err)
+		log.Println(fmt.Errorf("Failed to GetScheduleBy(): %w", err))
 		return
 	}
 
-	outPth := "../out/executive_minutes.txt"
+	outPth := "out/executive_minutes.txt"
 	if err := ioutil.WriteFile(outPth, []byte(template), 0666); err != nil {
 		log.Println(fmt.Errorf("Failed to Write(): %w", err))
 		return
