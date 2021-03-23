@@ -17,6 +17,8 @@ reminder:
   stage: reminder
   only:
     - schedules
+  before_script:
+    - cd config && git init && git add origin ${CONFIG_REPOSITORY} && git pull origin master
   script:
     - go run main.go -cmd 2 -mtg 1
     - go run main.go -cmd 2 -mtg 2
