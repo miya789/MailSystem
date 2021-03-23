@@ -1,6 +1,8 @@
 package main
 
 import (
+	"LabMeeting/pkg/lab_mail"
+	"LabMeeting/pkg/meeting_type"
 	"LabMeeting/pkg/memswiki"
 	"bufio"
 	"fmt"
@@ -91,12 +93,12 @@ func main() {
 	for scanner.Scan() {
 		if strings.TrimSpace(strings.ToLower(scanner.Text())) == "y" {
 			break
-		} else {
+		} else if strings.TrimSpace(strings.ToLower(scanner.Text())) == "n" {
 			fmt.Println("スクリプトを停止します．")
 			os.Exit(0)
 		}
 	}
-	// SendMail(msg,executive)
+	lab_mail.SendMinutesMail(meeting_type.Executive, strconv.Itoa(num), msg)
 
 	return
 }

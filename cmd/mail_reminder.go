@@ -41,7 +41,7 @@ func main() {
 
 	// Send reminder mail
 	log.Printf("Sending reminder mail...\n")
-	if err := lab_mail.SendMail(mtg, ms, mz); err != nil {
+	if err := lab_mail.SendReminderMail(mtg, ms, mz); err != nil {
 		log.Println(err)
 		return
 	}
