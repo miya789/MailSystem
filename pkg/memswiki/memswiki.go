@@ -66,7 +66,7 @@ func WriteTemplate(receptionIssues, nanotechHelpIssues []redmine.Issue, calendar
 
 #contents
 
-*` + "2020/09/24" + ` ` + "10:00" + `- @` + "Zoom" + `
+*` + "2021/01/01" + ` ` + "10:00" + `- @` + "Zoom" + `
 - 出席
 // 全メンバーは以下
 // ` + wikiTemplateMembers + `
