@@ -1,13 +1,92 @@
 package main
 
+import (
+	"LabMeeting/pkg/memswiki"
+	"bufio"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+)
+
 func main() {
-	// "-i" で指定
+	// 議事録に生成するページのアドレスを指定
+	// 上書きはできない筈だが，存在するアドレスには注意すること
+	var num *int
+	fmt.Println("\"Executive Meeting/[日付]\" の[日付]を入力して下さい．")
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		n, err := strconv.Atoi(scanner.Text())
+		num = &n
+		if err != nil || len(scanner.Text()) != 8 {
+			fmt.Println("8桁の数値を入力してください．(例: 20210101)")
+		} else {
+			// 確認の案内メッセージ
+			if scanner.Text() != time.Now().Format("20060102") {
+				fmt.Printf("\"Executive Meeting/%s\" を作成します．今日の日付ではありませんがよろしいですか? [y/N]\n", scanner.Text())
+			} else {
+				fmt.Printf("\"Executive Meeting/%s\" を作成します．よろしいですか? [y/N]\n", scanner.Text())
+			}
 
-	// 確認で "y"
+			for scanner.Scan() {
+				if strings.TrimSpace(strings.ToLower(scanner.Text())) == "y" {
+					break
+				} else {
+					fmt.Println("スクリプトを停止します．")
+					os.Exit(0)
+				}
+			}
+			fmt.Printf("\"Executive Meeting/%d\" を作成します．\n", num)
+			break
 
-	// Send minutes with mail
+		}
+	}
 
-	// Write minutes into mems wiki
+	// 議事録として登録するファイルの読み込み
+	file, err := os.OpenFile("write.txt", os.O_RDONLY, os.ModePerm)
+	if err != nil {
+		log.Println(fmt.Errorf("Failed to Read(): %w", err))
+		return
+	}
+	defer file.Close()
+	b, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// 議事録をWikiへ登録
+	msg := string(b)
+	fmt.Printf("\"Executive Meeting/%d\" に書き込む内容を表示します．\n%s\n", *num, msg)
+	fmt.Printf("\"Executive Meeting/%d\" に以上の内容を本当に書き込んでよろしいですか? [y/N]\n", *num)
+	scanner = bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		if strings.TrimSpace(strings.ToLower(scanner.Text())) == "y" {
+			break
+		} else {
+			fmt.Println("スクリプトを停止します．")
+			os.Exit(0)
+		}
+	}
+	executive_list := "http://mozart.if.t.u-tokyo.ac.jp/memswiki/index.php?Executive%20Meeting"
+	fmt.Println("今回作成した記事へのリンクを一覧ページへ追加するのは手動で行ったください．\n", executive_list)
+	memswiki.WriteMinute(*num, msg)
+
+	// 議事録をメールへ送信
+	fmt.Println("メールにも流しますか? [y/N]")
+	scanner = bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		if strings.TrimSpace(strings.ToLower(scanner.Text())) == "y" {
+			break
+		} else {
+			fmt.Println("スクリプトを停止します．")
+			os.Exit(0)
+		}
+	}
+	// SendMail(msg,executive)
 
 	return
 }
