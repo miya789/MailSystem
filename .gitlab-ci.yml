@@ -6,4 +6,4 @@ test:
     - golang:1.14
   stage: test
   script:
-    - go test -v -cover ./...
+    - go test -v -cover $(go list ./... | grep -v /cmd/)
