@@ -168,11 +168,11 @@ func WriteMinute(date int, msg string) error {
 	for k, v := range payloadPost {
 		valuesPost.Add(k, v)
 	}
-	// stdHeader["Content-Type"] = "application/x-www-form-urlencoded"
-	// body, err = digestPost(http.MethodPost, memsWiki.Scheme+"://"+memsWiki.Host, "/memswiki/index.php", stdHeader, strings.NewReader(valuesPost.Encode()))
-	// if err != nil {
-	// 	return fmt.Errorf("Failed to WriteMinutes(): %w", err)
-	// }
+	stdHeader["Content-Type"] = "application/x-www-form-urlencoded"
+	body, err = digestPost(http.MethodPost, memsWiki.Scheme+"://"+memsWiki.Host, "/memswiki/index.php", stdHeader, strings.NewReader(valuesPost.Encode()))
+	if err != nil {
+		return fmt.Errorf("Failed to WriteMinutes(): %w", err)
+	}
 
 	return nil
 }
