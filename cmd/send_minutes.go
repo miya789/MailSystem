@@ -85,7 +85,10 @@ func main() {
 		}
 	}
 	executive_list := "http://mozart.if.t.u-tokyo.ac.jp/memswiki/index.php?Executive%20Meeting"
-	memswiki.WriteMinute(num, msg)
+	if err := memswiki.WriteMinute(num, msg); err != nil {
+		log.Println(err)
+		return
+	}
 	fmt.Printf("\x1b[31m今回作成した記事へのリンクを一覧ページへ追加するのは手動で行ったください．\n%s\x1b[0m\n", executive_list)
 
 	// 議事録をメールへ送信
