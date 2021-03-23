@@ -26,10 +26,10 @@ func SendReminderMail(mtg meeting_type.MeetingType) {
 	ms, mz, err := schedule.GetScheduleBy(t, mtg)
 	if err != nil {
 		log.Println(err)
-		log.Printf("The announced schedule (%s) do not exist, so finished.\n", t.Format(schedule.TimeLayout))
+		log.Printf("The announced %s schedule (%s) do not exist, so finished.\n", mtg.CaptitalString(), t.Format(schedule.TimeLayout))
 		return
 	}
-	log.Printf("The announced schedule (%s) is %s, so continuing...\n", t.Format(schedule.TimeLayout), ms)
+	log.Printf("The announced %s schedule (%s) is %s, so continuing...\n", mtg.CaptitalString(), t.Format(schedule.TimeLayout), ms)
 
 	// Send reminder mail
 	log.Printf("Sending reminder mail...\n")
