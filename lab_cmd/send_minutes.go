@@ -1,4 +1,4 @@
-package cmd
+package lab_cmd
 
 import (
 	"LabMeeting/pkg/lab_mail"

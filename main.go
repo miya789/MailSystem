@@ -1,7 +1,7 @@
 package main
 
 import (
-	"LabMeeting/cmd"
+	"LabMeeting/lab_cmd"
 	"flag"
 	"fmt"
 	"log"
@@ -24,32 +24,32 @@ const (
 )
 
 func getCmdOption() (cmdOptionType, error) {
-	var cmdOpt int
-	flag.IntVar(&cmdOpt, "cmdOpt", -1, usgaeCmd)
+	var cmd int
+	flag.IntVar(&cmd, "cmd", -1, usgaeCmd)
 	flag.Parse()
-	if cmdOpt < int(MinutesTemplateGenerator) || cmdOpt > int(MailReminder) {
-		err := fmt.Errorf("invalid value %q for flag -%s: %v", strconv.Itoa(cmdOpt), "cmdOpt", "parse error")
+	if cmd < int(MinutesTemplateGenerator) || cmd > int(MailReminder) {
+		err := fmt.Errorf("invalid value %q for flag -%s: %v", strconv.Itoa(cmd), "cmd", "parse error")
 		fmt.Fprintln(flag.CommandLine.Output(), err)
 		fmt.Fprintf(flag.NewFlagSet(os.Args[0], flag.ExitOnError).Output(), "Usage of %s:\n", os.Args[0])
 		flag.PrintDefaults()
 		return 0, err
 	}
-	return cmdOptionType(cmdOpt), nil
+	return cmdOptionType(cmd), nil
 }
 
 func main() {
-	cmdOpt, err := getCmdOption()
+	cmd, err := getCmdOption()
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	switch cmdOpt {
+	switch cmd {
 	case MinutesTemplateGenerator:
-		cmd.GenerateMinutesTemplate()
+		lab_cmd.GenerateMinutesTemplate()
 	case MinutesSender:
-		cmd.SendMinutes()
+		lab_cmd.SendMinutes()
 	case MailReminder:
-		cmd.SendReminderMail()
+		lab_cmd.SendReminderMail()
 	default:
 		return
 	}
