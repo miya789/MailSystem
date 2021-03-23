@@ -12,14 +12,14 @@ func Test_getMeetingPlace(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *MeetingPlace
+		want *meetingPlace
 	}{
 		{
 			name: "should success",
 			args: args{
 				key: "113",
 			},
-			want: &MeetingPlace{
+			want: &meetingPlace{
 				jp: "工学部3号館 113号室 (電気系セミナー室3) ",
 				en: "Bldg. 3 Room 113 (Seminar 3)",
 			},
@@ -29,7 +29,7 @@ func Test_getMeetingPlace(t *testing.T) {
 			args: args{
 				key: "114",
 			},
-			want: &MeetingPlace{
+			want: &meetingPlace{
 				jp: "工学部3号館 114号室 (電気系セミナー室2) ",
 				en: "Bldg. 3 Room 114 (Seminar 2)",
 			},
@@ -39,7 +39,7 @@ func Test_getMeetingPlace(t *testing.T) {
 			args: args{
 				key: "128",
 			},
-			want: &MeetingPlace{
+			want: &meetingPlace{
 				jp: "工学部3号館128号室 (電気系セミナー室1) ",
 				en: "Bldg. 3 Room 128 (Seminar 1)",
 			},
@@ -49,7 +49,7 @@ func Test_getMeetingPlace(t *testing.T) {
 			args: args{
 				key: "VDEC306",
 			},
-			want: &MeetingPlace{
+			want: &meetingPlace{
 				jp: "VDEC 306",
 				en: "VDEC 306",
 			},
@@ -59,7 +59,7 @@ func Test_getMeetingPlace(t *testing.T) {
 			args: args{
 				key: "VDEC402",
 			},
-			want: &MeetingPlace{
+			want: &meetingPlace{
 				jp: "VDEC 402",
 				en: "VDEC 402",
 			},
@@ -69,7 +69,7 @@ func Test_getMeetingPlace(t *testing.T) {
 			args: args{
 				key: "Bldg13",
 			},
-			want: &MeetingPlace{
+			want: &meetingPlace{
 				jp: "13号館一般実験室",
 				en: "Bldg. 13",
 			},
@@ -79,7 +79,7 @@ func Test_getMeetingPlace(t *testing.T) {
 			args: args{
 				key: "zoom",
 			},
-			want: &MeetingPlace{
+			want: &meetingPlace{
 				jp: "zoom",
 				en: "zoom",
 			},

@@ -5,8 +5,21 @@ import (
 	"LabMeeting/pkg/schedule"
 	"crypto/tls"
 	"fmt"
+	"log"
 	"net"
 	"net/smtp"
+)
+
+var (
+	ME_MAIL_ID         string // 使用者のSMTPsメール送信用のID
+	ME_MAIL_PASS       string // 使用者のSMTPsメール送信用のパス
+	REMINDER_MAIL_ID   string // リマインダーのSMTPsメール送信用のID
+	REMINDER_MAIL_PASS string // リマインダーのSMTPsメール送信用のパス
+)
+
+const (
+	PORT_SMTP  = "587" // 言わずもがな
+	PORT_SMTPs = "465" // 言わずもがな
 )
 
 func sendSMTPMail(host string, message *Message) error {
@@ -84,7 +97,7 @@ func sendSMTPMailSSL(host string, message *Message, userID, password string) err
 	if err != nil {
 		return fmt.Errorf("Failed to c.Data(): %w", err)
 	}
-	if _, err = w.Write([]byte(message)); err != nil {
+	if _, err = w.Write([]byte(message.body)); err != nil {
 		return fmt.Errorf("Failed to w.Write(): %w", err)
 	}
 
@@ -97,27 +110,38 @@ func sendSMTPMailSSL(host string, message *Message, userID, password string) err
 }
 
 func SendReminderMail(mtg meeting_type.MeetingType, ms *schedule.MailSchedule, mzs *schedule.MailZoomSchedule) error {
-	r := New(mtg, ms, mzs)
-
-	if err := r.buildReminderMessage(); err != nil {
-		return err
+	to, bcc := getByMeetingType(mtg)
+	message := &Message{
+		from:    meetingReminder,
+		to:      to,
+		bcc:     bcc, // 複数であることに注意
+		subject: buildReminderSubject(mtg, ms),
+		rawBody: buildReminderRawBody(mtg, ms, mzs),
 	}
+	message.headers = buildHeader(message.from, message.to, message.bcc, message.subject)
+	message.body = buildMessage(message.headers, message.rawBody)
+	log.Printf("The send mail is as follows...\n--------------------------------------------------\n%s\n--------------------------------------------------\n", message.body)
 
 	// Connect to the SMTP Server
 	mozartHost := "smtp.if.t.u-tokyo.ac.jp"
-	return r.sendSMTPMail(mozartHost, r.message)
+	return sendSMTPMail(mozartHost, message)
 }
 
 // コメントアウトした行は削除してメール送信する
 func SendMinutesMail(mtg meeting_type.MeetingType, date, msg string) error {
-	// TODO: ミーティングスケジュールは不要なので仕様を変える
-	r := New(mtg, nil, nil)
-
-	if err := r.buildMessage(msg, date); err != nil {
-		return err
+	to, _ := getByMeetingType(mtg)
+	message := &Message{
+		from:    me,
+		to:      to,
+		bcc:     nil,
+		subject: buildMinutesSubject(date),
+		rawBody: buildMinutesRawBody(msg),
 	}
+	message.headers = buildHeader(message.from, message.to, message.bcc, message.subject)
+	message.body = buildMessage(message.headers, message.rawBody)
+	log.Printf("The send mail is as follows...\n--------------------------------------------------\n%s\n--------------------------------------------------\n", message.body)
 
 	// Connect to the SMTP Server
 	mozartHost := "smtp.if.t.u-tokyo.ac.jp"
-	return r.sendSMTPMailSSL(mozartHost, r.message)
+	return sendSMTPMailSSL(mozartHost, message, ME_MAIL_ID, ME_MAIL_PASS)
 }
