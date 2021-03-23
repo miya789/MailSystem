@@ -26,8 +26,7 @@ func SendReminderMail() {
 	log.Printf("Today (%s) is not a holiday, so continuing...\n", now.Format(schedule.TimeLayout))
 
 	// Get next weekday
-	t := now.AddDate(0, 0, 1)
-	t = schedule.GetNextWeekday(t)
+	t := schedule.GetNextWeekday(now)
 	log.Printf("The next weekday is %s.\n", t.Format(schedule.TimeLayout))
 
 	// Get the next meeting specified with next weekday
