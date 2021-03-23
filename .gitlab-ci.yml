@@ -1,9 +1,22 @@
 stages:
   - test
+  - reminder
 
 test:
   tags:
     - golang:1.14
   stage: test
+  except:
+    - schedules
   script:
     - go test -v -cover ./...
+
+reminder:
+  tags:
+    - golang:1.14
+  stage: reminder
+  only:
+    - schedules
+  script:
+    - go run main.go -cmd 2 -mtg 1
+    - go run main.go -cmd 2 -mtg 2
