@@ -15,8 +15,8 @@ import (
 )
 
 func GenerateMinutesTemplate(useProxy bool) {
-	if err := godotenv.Load("../config/.env"); err != nil {
-		log.Println(fmt.Errorf("Failed to read \"../config/.env\""))
+	if err := godotenv.Load("config/.env"); err != nil {
+		log.Println(fmt.Errorf("Failed to read \"config/.env\""))
 	}
 	RECEPTION_URL := os.Getenv("RECEPTION_URL")
 	NANOTECH_HELP_URL := os.Getenv("NANOTECH_HELP_URL")
@@ -52,7 +52,7 @@ func GenerateMinutesTemplate(useProxy bool) {
 		return
 	}
 
-	outPth := "../out/executive_minutes.txt"
+	outPth := "out/executive_minutes.txt"
 	if err := ioutil.WriteFile(outPth, []byte(template), 0666); err != nil {
 		log.Println(fmt.Errorf("Failed to Write(): %w", err))
 		return

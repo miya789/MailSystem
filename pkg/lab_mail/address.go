@@ -25,10 +25,10 @@ var (
 )
 
 func init() {
-	if err := godotenv.Load("../config/.env"); err != nil {
+	if err := godotenv.Load("config/.env"); err != nil {
 		// GitLab-Runner で実行する為に失敗しても可とする
 		// Local で実行する場合は .env によって簡単に設定できる
-		log.Println(fmt.Errorf("Failed to lab_mail init(): failed to read \"../config/.env\""))
+		log.Println(fmt.Errorf("Failed to lab_mail init(): failed to read \"config/.env\""))
 	}
 
 	// ここで環境変数の読み込みを一通り終える

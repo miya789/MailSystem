@@ -11,7 +11,7 @@ import (
 
 // Read returns array of some Schedule.
 func Read(mt meeting_type.MeetingType, st ScheduleType) (interface{}, error) {
-	outPth := "../config/" + mt.String() + "_" + basename[st]
+	outPth := "config/" + mt.String() + "_" + basename[st]
 
 	seedFile, err := os.OpenFile(outPth, os.O_RDONLY, os.ModePerm)
 	if err != nil {
