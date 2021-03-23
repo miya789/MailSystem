@@ -16,10 +16,11 @@ import (
 )
 
 var (
-	username string
-	password string
-	proxyURL *url.URL
-	memsWiki *url.URL
+	username            string
+	password            string
+	wikiTemplateMembers string
+	proxyURL            *url.URL
+	memsWiki            *url.URL
 )
 
 func init() {
@@ -29,6 +30,7 @@ func init() {
 	}
 	username = os.Getenv("WIKI_USERNAME")
 	password = os.Getenv("WIKI_PASSWORD")
+	wikiTemplateMembers = os.Getenv("WIKI_TEMPLATE_MEMBERS")
 	proxyURL, _ = url.Parse(os.Getenv("PROXY_URL"))
 	memsWiki, _ = url.Parse(os.Getenv("MEMSWIKI_URL"))
 
@@ -67,6 +69,7 @@ func WriteTemplate(receptionIssues, nanotechHelpIssues []redmine.Issue, calendar
 *` + "2020/09/24" + ` ` + "10:00" + `- @` + "Zoom" + `
 - 出席
 // 全メンバーは以下
+// ` + wikiTemplateMembers + `
 
 // 進行は基本的に以下の順だが，変更があればそれに合わせて変えよう
 // 1. 共有事項
