@@ -118,6 +118,7 @@ var stdHeader = map[string]string{
 
 func WriteMinute(date int, msg string) error {
 	log.SetFlags(log.Lshortfile)
+	log.Println("Accessing %s...", memsWiki.Scheme+"://"+memsWiki.Host)
 
 	page := "Executive Meeting/" + strconv.Itoa(date) // 作成する議事録ページのアドレス
 
@@ -133,7 +134,7 @@ func WriteMinute(date int, msg string) error {
 		valuesNewPage.Add(k, v)
 	}
 	stdHeader["Content-Type"] = "application/x-www-form-urlencoded"
-	body, err := digestPost(http.MethodPost, memsWiki.Scheme+memsWiki.Host, "/memswiki/index.php", stdHeader, strings.NewReader(valuesNewPage.Encode()))
+	body, err := digestPost(http.MethodPost, memsWiki.Scheme+"://"+memsWiki.Host, "/memswiki/index.php", stdHeader, strings.NewReader(valuesNewPage.Encode()))
 	if err != nil {
 		return fmt.Errorf("Failed to WriteMinutes(): %w", err)
 	}
@@ -165,7 +166,7 @@ func WriteMinute(date int, msg string) error {
 		valuesPost.Add(k, v)
 	}
 	stdHeader["Content-Type"] = "application/x-www-form-urlencoded"
-	body, err = digestPost(http.MethodPost, memsWiki.Scheme+memsWiki.Host, "/memswiki/index.php", stdHeader, strings.NewReader(valuesPost.Encode()))
+	body, err = digestPost(http.MethodPost, memsWiki.Scheme+"://"+memsWiki.Host, "/memswiki/index.php", stdHeader, strings.NewReader(valuesPost.Encode()))
 	if err != nil {
 		return fmt.Errorf("Failed to WriteMinutes(): %w", err)
 	}
