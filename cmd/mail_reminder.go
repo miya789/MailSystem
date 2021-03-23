@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"LabMeeting/pkg/lab_flag"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func main() {
+func SendReminderMail() {
 	// Determine meeting type
 	mtg, err := lab_flag.GetMeetingType()
 	if err != nil {

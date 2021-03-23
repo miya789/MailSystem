@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"LabMeeting/pkg/lab_flag"
@@ -16,13 +16,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
+func GenerateMinutesTemplate() {
 	if err := godotenv.Load("../config/.env"); err != nil {
 		log.Println(fmt.Errorf("Failed to read \"../config/.env\""))
 	}
 	RECEPTION_URL := os.Getenv("RECEPTION_URL")
 	NANOTECH_HELP_URL := os.Getenv("NANOTECH_HELP_URL")
 	// TEST_URL := os.Getenv("TEST_URL")
+
 	useProxy, err := lab_flag.GetUseProxy()
 	if err != nil {
 		log.Println(err)
