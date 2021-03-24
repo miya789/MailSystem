@@ -24,10 +24,9 @@ reminder:
     # 何故か既に存在する場合があるので
     - >
       if [ -e ./.git ]; then
-        git remote set-url origin "https://${MAIL_REMINDER_NAME}:${MAIL_REMINDER_ACCESS_TOKEN}@${CONFIG_REPOSITORY#*@}"
-      else
-        git remote add origin "https://${MAIL_REMINDER_NAME}:${MAIL_REMINDER_ACCESS_TOKEN}@${CONFIG_REPOSITORY#*@}"
+        rm -rf .git
       fi
+    - git remote add origin "https://${MAIL_REMINDER_NAME}:${MAIL_REMINDER_ACCESS_TOKEN}@${CONFIG_REPOSITORY#*@}"
     - git pull origin master
     - cd ../
   script:
