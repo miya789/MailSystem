@@ -19,7 +19,10 @@ reminder:
     - schedules
   before_script:
     - cd config && git init && git remote add origin "https://${GITLAB_RUNNER_NAME}:${GITLAB_API_ACCESS_TOKEN}@${CONFIG_REPOSITORY}" && git pull origin master
+    - git config -l
     - cd ../
+    - ls -la
+    - ls -la config
   script:
     - go run main.go -cmd 2 -mtg 1
     - go run main.go -cmd 2 -mtg 2
