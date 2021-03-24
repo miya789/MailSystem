@@ -20,7 +20,6 @@ reminder:
   before_script:
     - git config --global http.sslVerify false
     - cd config
-    - git init
     - ls -la
     # 何故か既に存在する場合があるので
     - >
@@ -28,6 +27,7 @@ reminder:
         rm -rf .git
       fi
     - ls -la
+    - git init
     - git remote add origin "https://${MAIL_REMINDER_NAME}:${MAIL_REMINDER_ACCESS_TOKEN}@${CONFIG_REPOSITORY#*@}"
     - git pull origin master
     - cd ../
