@@ -31,5 +31,7 @@ reminder:
     - git pull origin master
     - cd ../
   script:
+    - ls -la
+    - ls -la config
     - go run main.go -cmd 2 -mtg 1
     - go run main.go -cmd 2 -mtg 2
