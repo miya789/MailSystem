@@ -10,6 +10,8 @@ test:
     - schedules
   script:
     - go test -v -cover ./...
+    - go test -coverprofile=coverage.txt -covermode count github.com/gorilla/mux
+    - gocover-cobertura < coverage.txt > coverage.xml
 
 reminder:
   tags:
