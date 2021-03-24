@@ -19,7 +19,7 @@ reminder:
     - schedules
   before_script:
     - git config --global http.sslVerify false
-    - cd config && git init && git remote add origin "https://${MAIL_REMINDER_NAME}:${MAIL_REMINDER_ACCESS_TOKEN}@${CONFIG_REPOSITORY}" && git pull origin master
+    - cd config && git init && git remote add origin "https://${MAIL_REMINDER_NAME}:${MAIL_REMINDER_ACCESS_TOKEN}@${CONFIG_REPOSITORY#*@}" && git pull origin master
     - cd ../
   script:
     - go run main.go -cmd 2 -mtg 1
