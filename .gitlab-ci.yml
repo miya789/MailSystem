@@ -21,7 +21,7 @@ reminder:
     - git config --global http.sslVerify false
     - cd config
     - ls -la
-    # 何故か既に存在する場合があるので
+    # git init が正常に動いていないと? fatal: remote origin already exists. と言われるので注意
     - >
       if [ -e ./.git ]; then
         rm -rf .git
@@ -32,7 +32,5 @@ reminder:
     - git pull origin master
     - cd ../
   script:
-    - ls -la
-    - ls -la config
     - go run main.go -cmd 2 -mtg 1
     - go run main.go -cmd 2 -mtg 2
