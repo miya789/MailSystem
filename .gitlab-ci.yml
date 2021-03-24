@@ -8,6 +8,8 @@ test:
   stage: test
   except:
     - schedules
+  before_script:
+    - go get github.com/boumenot/gocover-cobertura
   script:
     - go test -v -cover ./...
     - go test -coverprofile=coverage.txt -covermode count github.com/gorilla/mux
