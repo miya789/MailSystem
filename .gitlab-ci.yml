@@ -1,5 +1,6 @@
 stages:
   - test
+  - release
   - reminder
 
 test:
@@ -8,8 +9,43 @@ test:
   stage: test
   except:
     - schedules
+  before_script:
+    - go get github.com/boumenot/gocover-cobertura
   script:
     - go test -v -cover ./...
+    - go test -coverprofile=coverage.txt -covermode count github.com/gorilla/mux
+    - gocover-cobertura < coverage.txt > coverage.xml
+  artifacts:
+    reports:
+      cobertura: coverage.xml
+
+release-from-tag:
+  tags:
+    - golang:1.14
+  stage: release
+  only:
+    - tags
+  variables:
+    GOPATH: ${CI_PROJECT_DIR}/.cache
+    GOARCH: amd64
+    OSS: "linux freebsd netbsd darwin windows"
+    BASEURL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}"
+    PROGRAM_NAME: lab-mtg
+  before_script:
+    - >
+      apt-get update -qq && apt-get install -y -qq
+      make
+      curl
+    - apt-get clean
+    - rm -rf /var/lib/apt/lists/*
+  script:
+    - for os in ${OSS}; do GOOS=$os GOARCH=${GOARCH} make cross; done
+
+    - /bin/sh mkrel.sh ${PROGRAM_NAME}
+  artifacts:
+    paths:
+      - ${PROGRAM_NAME}_*
+    expire_in: 1day
 
 reminder:
   tags:

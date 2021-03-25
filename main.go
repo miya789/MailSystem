@@ -27,7 +27,7 @@ var (
 // 本当はこんなもの使いたくないが仕方無く全員ここで取得
 func getFlags() (cmdOptionType, bool, meeting_type.MeetingType, error) {
 	flag.IntVar(&cmd, "cmd", -1, "-1:\t(default, but do not use)\n0:\tminutes template generator\n1:\tminutes sender to wiki and mailer\n2:\tmail reminder")
-	flag.BoolVar(&useProxy, "p", false, "false\t(default)")
+	flag.BoolVar(&useProxy, "p", false, "false:\tnot use proxy (default)\ntrue:\tuse proxy")
 	flag.IntVar(&mtg, "mtg", -1, "0: others \t(default, but do not use)\n1: TeamMEMS\n2: Executive")
 	flag.Parse()
 
@@ -61,6 +61,7 @@ func main() {
 		}
 		lab_cmd.SendReminderMail(mtg)
 	default:
+		flag.PrintDefaults()
 		return
 	}
 }
