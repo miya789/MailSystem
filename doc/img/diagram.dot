@@ -1,0 +1,45 @@
+digraph overall {
+  graph [
+    charset = "UTF-8";
+    bgcolor = "#343434",
+    fontsize = 18,
+    style = "filled",
+  ];
+  node [
+    colorscheme = "rdylgn11"
+    style = "solid,filled",
+    fontsize = 14,
+    fontcolor = 6,
+  ];
+  edge [
+    color = white,
+    fontcolor=white
+  ];
+  "seed data\n(*_calendar.csv)"               [color=7, fillcolor="#5FB404"]
+  "seed data\n(*_mail.csv, *_mail_zoom.csv)"  [color=7, fillcolor="#5FB404"]
+  
+  "LabMeeting (MailReminder)"             [color=7, fillcolor="#B45F04"]
+  "LabMeeting (MinutesTemplateGenerator)" [color=7, fillcolor="#B45F04"]
+  "LabMeeting (MinutesSender)"            [color=7, fillcolor="#B45F04"]  
+  {rank = same; "LabMeeting (MailReminder)"; "LabMeeting (MinutesTemplateGenerator)"; "LabMeeting (MinutesSender)";}
+
+  "mail(as リマインダー)"  [color=7, fillcolor="#8904B1"]
+  "Redmine"         [color=7, fillcolor="#8A084B"]
+  "memswiki"        [color=7, fillcolor="#0080FF"]
+  "mail(as 議事録)"    [color=7, fillcolor="#8904B1"]
+
+  // MinutesTemplateGenerator
+  "seed data\n(*_calendar.csv)" -> "LabMeeting (MinutesTemplateGenerator)"  [color="#5FB404", label="git pull"]
+  "Redmine" -> "LabMeeting (MinutesTemplateGenerator)"                      [color="#8A084B", label="Issue取得"]
+  "LabMeeting (MinutesTemplateGenerator)" -> "Redmine"                      [color="#8A084B", label="Issue取得"]
+  "LabMeeting (MinutesTemplateGenerator)" -> "memswiki"                     [color="#8A084B", label="形式を取得"，style=dash]
+  "memswiki" -> "LabMeeting (MinutesTemplateGenerator)"                     [color="#8A084B", label="形式を取得"，style=dash]
+
+  // MinutesSender
+  "LabMeeting (MinutesSender)" -> "memswiki"      [color="#0080FF", label="ページ作成"]
+  "LabMeeting (MinutesSender)" -> "mail(as 議事録)"  [color="#0080FF", label="メール送信"]
+
+  // MailReminder
+  "seed data\n(*_mail.csv, *_mail_zoom.csv)" -> "LabMeeting (MailReminder)" [color="#5FB404", label="git pull"]
+  "LabMeeting (MailReminder)" -> "mail(as リマインダー)"                           [color="#8904B1", label="cron"]
+}
