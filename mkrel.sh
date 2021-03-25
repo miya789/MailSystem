@@ -5,8 +5,6 @@ progname=$1
 for os in ${OSS}
 do
     fullname="${progname}_${CI_COMMIT_TAG}_${os}_${GOARCH}"
-
-    fi
 	linkname="${fullname}(SHA256 $(cut -f1 -d' ' ${fullname}.sha256))"
 	linkurl="${BASEURL}/jobs/${CI_JOB_ID}/artifacts/${fullname}"
 
