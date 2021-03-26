@@ -15,6 +15,12 @@
 
   - 詳しいことは当時の `README.md` 参照
 
+<details><summary>目次</summary><div>
+
+[[_TOC_]]
+
+</div></details>
+
 ## 用語説明
 
 ### バイナリ
