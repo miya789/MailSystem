@@ -84,8 +84,10 @@ func WriteTemplate(receptionIssues, nanotechHelpIssues []redmine.Issue, calendar
 // -- YYY
 
 **ナノテクへルプ受付窓口
+// 特筆事項の無かった案件はミーティング中に行ごと削除してしまって良い
 ` + receptionLinks + `
 **ナノテクヘルプ
+// 特筆事項の無かった案件はミーティング中に行ごと削除してしまって良い
 ` + nanotechHelpLinks + `
 **装置メンテ
 
