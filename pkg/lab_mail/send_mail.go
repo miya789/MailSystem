@@ -143,5 +143,5 @@ func SendMinutesMail(mtg meeting_type.MeetingType, date, msg string) error {
 
 	// Connect to the SMTP Server
 	mozartHost := "smtp.if.t.u-tokyo.ac.jp"
-	return sendSMTPMailSSL(mozartHost, message, ME_MAIL_ID, ME_MAIL_PASS)
+	return sendSMTPMail(mozartHost, message)
 }
