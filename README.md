@@ -30,7 +30,7 @@
 これはリリースノートのページからダウンロード可能である．\
 これにより，OS に依存せず実行可能である．
 
-尚，Windowsの場合は拡張子を .exe に手動で改名すること．
+尚，Windows の場合は拡張子を .exe に手動で改名すること．
 
 ### config リポジトリ
 
@@ -64,18 +64,23 @@ config フォルダの中身を管理しているリポジトリである．
 - <details><summary>Git が使えない場合 (詳しくはクリック)</summary>
   <div>
 
-    0. 適当なフォルダを作る ( `LabMeeting` フォルダと仮定する)
-    1. バイナリをリリースノートからダウンロードし， `LabMeeting` フォルダに置く
-    2. `config` フォルダと `out` フォルダを作成
-    3. `config` フォルダに `*_mail.csv`,`*_mail_zoom.csv`,`*_calendar.csv` を置く
-      - 形式が分からない場合は **config リポジトリ** を参考に
-      - config リポジトリからダウンロードしても可
-    4. `config` フォルダに `.env` を作り書く
-      - 書き方の参考例は ![./config/.env.sample](./config/.env.sample)
-      - どうしても分からないものは config リポジトリを参考に
-    5. ./(バイナリのファイル名) で実行
-      - オプションの使い方はメッセージ等を参考に
-      - Linux 等の場合は実行権限を `chmod 700 (バイナリのファイル名)` で与える
+  0. 適当なフォルダを作る ( `LabMeeting` フォルダと仮定する)
+  1. バイナリをリリースノートからダウンロードし， `LabMeeting` フォルダに置く
+  2. `config` フォルダと `out` フォルダを作成
+  3. `config` フォルダに `*_mail.csv`,`*_mail_zoom.csv`,`*_calendar.csv` を置く
+
+     - 形式が分からない場合は **config リポジトリ** を参考に
+     - config リポジトリからダウンロードしても可
+
+  4. `config` フォルダに `.env` を作り書く
+
+     - 書き方の参考例は ![./config/.env.sample](./config/.env.sample)
+     - どうしても分からないものは config リポジトリを参考に
+
+  5. ./(バイナリのファイル名) で実行
+
+     - オプションの使い方はメッセージ等を参考に
+     - Linux 等の場合は実行権限を `chmod 700 (バイナリのファイル名)` で与える
 
   </div></details>
 
@@ -83,38 +88,39 @@ config フォルダの中身を管理しているリポジトリである．
 
   1. 下記のコマンドで環境を用意
 
-    ```bash
-    # GitLab版
-    git clone https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting.git  # デフォルト
-    git clone git@gitlab.p.if.t.u-tokyo.ac.jp:MitaLab/LabMeeting.git      # GitLabとSSH通信可能な人用
+     ```bash
+     # GitLab版
+     git clone https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting.git  # デフォルト
+     git clone git@gitlab.p.if.t.u-tokyo.ac.jp:MitaLab/LabMeeting.git      # GitLabとSSH通信可能な人用
 
-    # GitHub版
-    git clone https://github.com/miya789/MailSystem.git # デフォルト
-    git clone git@github.com:miya789/MailSystem.git     # GitHubとSSH通信可能な人用
-    ```
+     # GitHub版
+     git clone https://github.com/miya789/MailSystem.git # デフォルト
+     git clone git@github.com:miya789/MailSystem.git     # GitHubとSSH通信可能な人用
+     ```
 
   2. 下記コマンドで `config` ディレクトリにおいて設定を読み込む
 
-    ```bash
-    cd config                                                                            # config ディレクトリに移動
-    git init                                                                             # config ディレクトリを git で別管理
-    git remote add origin git@gitlab.p.if.t.u-tokyo.ac.jp:MitaLab/LabMeeting_config.git  # config ディレクトリが参照する remote を設定
-    git pull origin master                                                               # config ディレクトリを remote に同期
-    ```
+     ```bash
+     cd config                                                                            # config ディレクトリに移動
+     git init                                                                             # config ディレクトリを git で別管理
+     git remote add origin git@gitlab.p.if.t.u-tokyo.ac.jp:MitaLab/LabMeeting_config.git  # config ディレクトリが参照する remote を設定
+     git pull origin master                                                               # config ディレクトリを remote に同期
+     ```
 
   3. 適宜 `.env` の設定値を変更
-    - 個人情報を含む為，これを読み込んで実行ファイルは動く
-    - **自分の名前や学年を書く**
-    - 既に `.env.sample` があるのでこれを参考にすること
-    - 主にメールアドレス等の以下項目を変更する
-      - **WIKI_TEMPLATE_MEMBERS**: メンバーが変わるので
-      - **REDMINE_API_KEY**: 自分のを使わなければ卒業して失効した場合に動かない可能性あり
-      - **PROXY_URL**
-      - **ME_NAME_JP**
-      - **ME_NAME_EN**
-      - **ME_GRADE**
-      - **ME_MAIL_ID**
-      - **ME_MAIL_PASS**
+
+     - 個人情報を含む為，これを読み込んで実行ファイルは動く
+     - **自分の名前や学年を書く**
+     - 既に `.env.sample` があるのでこれを参考にすること
+     - 主にメールアドレス等の以下項目を変更する
+       - **WIKI_TEMPLATE_MEMBERS**: メンバーが変わるので
+       - **REDMINE_API_KEY**: 自分のを使わなければ卒業して失効した場合に動かない可能性あり
+       - **PROXY_URL**
+       - **ME_NAME_JP**
+       - **ME_NAME_EN**
+       - **ME_GRADE**
+       - **ME_MAIL_ID**
+       - **ME_MAIL_PASS**
 
 ### 普段の使い方
 
@@ -194,6 +200,7 @@ config フォルダの中身を管理しているリポジトリである．
 - こうすることで，config リポジトリの内容に従い，後は勝手に GitLab の `schedules` ステージの Pipeline が勝手にやってくれる
 
   - 尚，送信に失敗した場合は GitLab の `schedules` ステージの Pipeline を確認すること
+
     - その際は自分でメールを書いて送信して対処
 
   - 設定を変える場合は， **CI/CD>変数** を変える
