@@ -109,7 +109,7 @@ func sendSMTPMailSSL(host string, message *Message, userID, password string) err
 	return nil
 }
 
-func SendReminderMail(mtg meeting_type.MeetingType, ms *schedule.MailSchedule, mzs *schedule.MailZoomSchedule) error {
+func SendReminderMail(mtg meeting_type.MeetingType, ms *schedule.MailSchedule, mzs *schedule.MailZoomSchedule, useSSL bool) error {
 	to, bcc := getByMeetingType(mtg)
 	message := &Message{
 		from:    meetingReminder,
@@ -124,11 +124,14 @@ func SendReminderMail(mtg meeting_type.MeetingType, ms *schedule.MailSchedule, m
 
 	// Connect to the SMTP Server
 	mozartHost := "smtp.if.t.u-tokyo.ac.jp"
+	if useSSL {
+		return sendSMTPMailSSL(mozartHost, message, ME_MAIL_ID, ME_MAIL_PASS)
+	}
 	return sendSMTPMail(mozartHost, message)
 }
 
 // コメントアウトした行は削除してメール送信する
-func SendMinutesMail(mtg meeting_type.MeetingType, date, msg string) error {
+func SendMinutesMail(mtg meeting_type.MeetingType, date, msg string, useSSL bool) error {
 	to, _ := getByMeetingType(mtg)
 	message := &Message{
 		from:    me,
@@ -143,5 +146,8 @@ func SendMinutesMail(mtg meeting_type.MeetingType, date, msg string) error {
 
 	// Connect to the SMTP Server
 	mozartHost := "smtp.if.t.u-tokyo.ac.jp"
+	if useSSL {
+		return sendSMTPMailSSL(mozartHost, message, ME_MAIL_ID, ME_MAIL_PASS)
+	}
 	return sendSMTPMail(mozartHost, message)
 }

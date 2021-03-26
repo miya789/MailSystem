@@ -121,7 +121,7 @@ var stdHeader = map[string]string{
 	"User-Agent":                "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0",
 }
 
-func WriteMinute(date int, msg string) error {
+func WriteMinute(date int, msg string, useProxy bool) error {
 	log.SetFlags(log.Lshortfile) // メチャクチャ難しかったのでログを詳細に出している
 	log.Printf("Accessing %s...\n", memsWiki.Scheme+"://"+memsWiki.Host)
 
@@ -139,7 +139,7 @@ func WriteMinute(date int, msg string) error {
 		valuesNewPage.Add(k, v)
 	}
 	stdHeader["Content-Type"] = "application/x-www-form-urlencoded"
-	body, err := digestPost(http.MethodPost, memsWiki.Scheme+"://"+memsWiki.Host, "/memswiki/index.php", stdHeader, strings.NewReader(valuesNewPage.Encode()))
+	body, err := digestPost(http.MethodPost, memsWiki.Scheme+"://"+memsWiki.Host, "/memswiki/index.php", stdHeader, strings.NewReader(valuesNewPage.Encode()), useProxy)
 	if err != nil {
 		return fmt.Errorf("Failed to WriteMinutes(): %w", err)
 	}
@@ -171,7 +171,7 @@ func WriteMinute(date int, msg string) error {
 		valuesPost.Add(k, v)
 	}
 	stdHeader["Content-Type"] = "application/x-www-form-urlencoded"
-	body, err = digestPost(http.MethodPost, memsWiki.Scheme+"://"+memsWiki.Host, "/memswiki/index.php", stdHeader, strings.NewReader(valuesPost.Encode()))
+	body, err = digestPost(http.MethodPost, memsWiki.Scheme+"://"+memsWiki.Host, "/memswiki/index.php", stdHeader, strings.NewReader(valuesPost.Encode()), useProxy)
 	if err != nil {
 		return fmt.Errorf("Failed to WriteMinutes(): %w", err)
 	}
