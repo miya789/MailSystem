@@ -1,8 +1,8 @@
 # LabMeeting
 
 [![Go](https://img.shields.io/badge/Language-Go-76E1FE?logo=go)](https://github.com/golang/go)
-[![pipeline status](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/MeetingCsvGenerator/badges/master/pipeline.svg)](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/MeetingCsvGenerator/pipelines)
-[![coverage](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/MeetingCsvGenerator/badges/master/coverage.svg)](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/MeetingCsvGenerator/commits/master)
+[![pipeline status](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/badges/master/pipeline.svg)](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/pipelines)
+[![coverage](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/badges/master/coverage.svg)](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/commits/master)
 
 - 研究室のミーティング関係の自動化ツール
 
@@ -43,7 +43,7 @@ config フォルダの中身を管理しているリポジトリである．
 
 (どうしても分からない場合は，本リポジトリの**CI/CD>変数**にも設定してあるので確認)
 
-## 使用手順
+## 使い方
 
 - 必ず `config/.env` を作成すること
 
@@ -59,7 +59,7 @@ config フォルダの中身を管理しているリポジトリである．
   2. [議事録の Wiki ページ作成やメール送信](#2-議事録の-wiki-ページ作成やメール送信)
   3. [ミーティングのメールリマインダー](#3-ミーティングのメールリマインダー)
 
-### セットアップ
+### 初期設定の手順
 
 - <details><summary>Git が使えない場合 (詳しくはクリック)</summary>
   <div>
@@ -116,7 +116,7 @@ config フォルダの中身を管理しているリポジトリである．
       - **ME_MAIL_ID**
       - **ME_MAIL_PASS**
 
-### 普段
+### 普段の使い方
 
 #### 1. 議事録テンプレートの生成
 
@@ -157,7 +157,7 @@ config フォルダの中身を管理しているリポジトリである．
     - 別のプログラム(MeetingCsvGenerator)で作成可能である
   - 決まった直後に行うと，忘れずにできて良い
 
-    - <details><summary>各項目に関して詳しく</summary>
+    - <details><summary>各項目に関して詳しくはこちらをクリック</summary>
       <div>
 
       - 各ミーティング日程は，半角スペース区切りで `yy/mm/dd,開始時刻,場所,内容` と入力
@@ -193,12 +193,12 @@ config フォルダの中身を管理しているリポジトリである．
 
 - こうすることで，config リポジトリの内容に従い，後は勝手に GitLab の `schedules` ステージの Pipeline が勝手にやってくれる
 
-  - (どうしても場所が分からない場合は，後述の環境変数にも設定してあるので確認)
   - 尚，送信に失敗した場合は GitLab の `schedules` ステージの Pipeline を確認すること
     - その際は自分でメールを書いて送信して対処
 
   - 設定を変える場合は， **CI/CD>変数** を変える
 
+    - GitLab の Pipeline の場合は設定された環境変数が優先されるので基本的に使わない
     - `MAIL_REMINDER_ACCESS_TOKEN` は `GitLab-Runner` アカウントのアクセストークンである
       - これを用いて config リポジトリを clone しているので，**間違って削除しないように注意すること**
 
@@ -212,7 +212,7 @@ config フォルダの中身を管理しているリポジトリである．
     ./(バイナリファイル名) -cmd 2 -mtg (1もしくは2)
     ```
 
-### 引継ぎ
+### 引継ぎの方法
 
 - そんなものはない
 - ミーティングの予定を決まった形式で， config リポジトリ( **remote** )に `commit` さえおけば問題無い筈……
