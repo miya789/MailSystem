@@ -231,30 +231,22 @@ config フォルダの中身を管理しているリポジトリである．
 
 ```bash
 .
-├── README.md
-├── config
+├── config                          # 設定ファイル置き場，基本的にここしか弄らない
 │   ├── (.env)
-│   ├── .env.sample
-│   ├── (.gitignore)
-│   ├── (executive_calendar.csv)
-│   ├── (executive_mail.csv)
-│   ├── (executive_mail_zoom.csv)
+│   ├── .env.sample                # .env のサンプル
+│   ├── (executive_calendar.csv)   # ミーティングの Google カレンダーインポート用 csv
+│   ├── (executive_mail.csv)       # ミーティングのメールリマインダー用 csv
+│   ├── (executive_mail_zoom.csv)  # ミーティングのメールリマインダーで Zoom URL ,PASS を読み込む用の csv
 │   ├── (teamMEMS_calendar.csv)
 │   ├── (teamMEMS_mail.csv)
 │   └── (teamMEMS_mail_zoom.csv)
-├── doc
-│   └── img
-│       ├── diagram.dot
-│       └── diagram.pdf
-├── go.mod
-├── go.sum
-├── lab_cmd (実行ファイルに呼ばれる3種類のコマンドファイル)
+├── lab_cmd                         # 実行ファイルに呼ばれる3種類のコマンドファイル
 │   ├── mail_reminder.go
 │   ├── minutes.go
 │   └── send_minutes.go
-├── main.go (実行ファイル)
-├── out
-└── pkg (各機能毎に分けたパッケージ類)
+├── main.go                         # 実行ファイル
+├── out                             # 出力したテンプレートの出力先
+└── pkg                             # 各機能毎に分けたパッケージ類
     ├── lab_flag
     │   ├── flag.go
     │   └── flag_test.go
@@ -280,4 +272,4 @@ config フォルダの中身を管理しているリポジトリである．
 
 ## 主な流れ
 
-![Flowchart diagram](doc/img/diagram.png)
+![[Flowchart diagram](doc/img/diagram.png)](doc/img/diagram.png)
