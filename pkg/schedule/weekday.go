@@ -22,6 +22,10 @@ func IsHoliday(t time.Time) bool {
 		log.Println(fmt.Errorf("Failed to isNotWeekday(): %w", err))
 		return false
 	}
+	// ネットワークが繫がらない問題が起きても parser はエラーを出さないので一時的にこれで対応
+	if len(cal) == 0 {
+		log.Panic(fmt.Errorf("Failed to isNotWeekday(): %w", errors.New("cal in empty, maybe because of network problem")))
+	}
 
 	isSat := (t.Weekday() == time.Saturday)
 	isSun := (t.Weekday() == time.Sunday)
