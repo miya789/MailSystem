@@ -64,6 +64,7 @@ func buildHeader(from, to *mail.Address, bcc []*mail.Address, subject string) ma
 	headers["Content-Type"] = "text/plain; charset=UTF-8"
 	headers["Content-Transfer-Encoding"] = "8bit"
 	headers["MIME-Version"] = "1.0"
+	headers["Date"] = time.Now().Local().Format(time.RFC1123Z)
 
 	return headers
 }
