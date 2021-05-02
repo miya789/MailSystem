@@ -44,7 +44,6 @@ func SendMinutes(useProxy, useSSL bool) {
 			}
 			fmt.Printf("\"Executive Meeting/%d\" を作成します．\n", num)
 			break
-
 		}
 	}
 
@@ -63,13 +62,13 @@ func SendMinutes(useProxy, useSSL bool) {
 	file, err := os.OpenFile(filePath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		log.Println(fmt.Errorf("Failed to Read(): %w", err))
-		return
+		os.Exit(1)
 	}
 	defer file.Close()
 	b, err := ioutil.ReadAll(file)
 	if err != nil {
 		log.Println(err)
-		return
+		os.Exit(1)
 	}
 
 	// 議事録をWikiへ登録
@@ -93,7 +92,7 @@ func SendMinutes(useProxy, useSSL bool) {
 			err = errors.Unwrap(err)
 		}
 		if _, ok := err.(*memswiki.ErrDocNotFound); !ok {
-			return
+			os.Exit(1)
 		}
 		fmt.Printf("\x1b[31m既に記事のページが存在します．\n\x1b[0m\n")
 	}
@@ -112,7 +111,7 @@ func SendMinutes(useProxy, useSSL bool) {
 	}
 	if err := lab_mail.SendMinutesMail(meeting_type.Executive, strconv.Itoa(num), msg, useSSL); err != nil {
 		log.Println(err)
-		return
+		os.Exit(1)
 	}
 
 	return

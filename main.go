@@ -40,7 +40,7 @@ func main() {
 	cmd, mtg, useProxy, useSSL, err := getFlags()
 	if err != nil {
 		log.Println(err)
-		return
+		os.Exit(1)
 	}
 
 	switch cmd {
@@ -55,11 +55,11 @@ func main() {
 			fmt.Fprintln(flag.CommandLine.Output(), err)
 			fmt.Fprintf(flag.NewFlagSet(os.Args[0], flag.ExitOnError).Output(), "Usage of %s:\n", os.Args[0])
 			flag.PrintDefaults()
-			return
+			os.Exit(1)
 		}
 		lab_cmd.SendReminderMail(mtg, useSSL)
 	default:
 		flag.PrintDefaults()
-		return
+		os.Exit(1)
 	}
 }
