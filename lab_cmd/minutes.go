@@ -30,11 +30,13 @@ func GenerateMinutesTemplate(useProxy bool) {
 	}
 	receptionIssues, err := r.GetIssues(RECEPTION_URL)
 	if err != nil {
-		return
+		log.Println(fmt.Errorf("Failed to GenerateMinutesTemplate(): %w", err))
+		os.Exit(1)
 	}
 	nanotechHelpIssues, err := r.GetIssues(NANOTECH_HELP_URL)
 	if err != nil {
-		return
+		log.Println(fmt.Errorf("Failed to GenerateMinutesTemplate(): %w", err))
+		os.Exit(1)
 	}
 
 	log.Println("Loading schedules...")
@@ -42,20 +44,21 @@ func GenerateMinutesTemplate(useProxy bool) {
 	cs, err := schedule.GetSchedulesAfter(now, meeting_type.Executive, schedule.Calendar)
 	if err != nil {
 		log.Println(err)
-		return
+		log.Println(fmt.Errorf("Failed to GenerateMinutesTemplate(): %w", err))
+		os.Exit(1)
 	}
 	calendarSchdules := cs.([]*schedule.CalendarSchedule)
 
 	template, err := memswiki.WriteTemplate(receptionIssues, nanotechHelpIssues, calendarSchdules)
 	if err != nil {
-		log.Println(fmt.Errorf("Failed to GetScheduleBy(): %w", err))
-		return
+		log.Println(fmt.Errorf("Failed to GenerateMinutesTemplate(): %w", err))
+		os.Exit(1)
 	}
 
 	outPth := "out/executive_minutes.txt"
 	if err := ioutil.WriteFile(outPth, []byte(template), 0666); err != nil {
-		log.Println(fmt.Errorf("Failed to Write(): %w", err))
-		return
+		log.Println(fmt.Errorf("Failed to GenerateMinutesTemplate(): %w", err))
+		os.Exit(1)
 	}
 	log.Println(fmt.Errorf("Generating template as \"%s\"", outPth))
 

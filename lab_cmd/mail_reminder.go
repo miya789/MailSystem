@@ -5,6 +5,7 @@ import (
 	"LabMeeting/pkg/meeting_type"
 	"LabMeeting/pkg/schedule"
 	"log"
+	"os"
 	"time"
 )
 
@@ -35,6 +36,6 @@ func SendReminderMail(mtg meeting_type.MeetingType, useSSL bool) {
 	log.Printf("Sending reminder mail...\n")
 	if err := lab_mail.SendReminderMail(mtg, ms, mz, useSSL); err != nil {
 		log.Println(err)
-		return
+		os.Exit(1)
 	}
 }
