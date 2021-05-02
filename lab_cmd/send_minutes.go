@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func SendMinutes() {
+func SendMinutes(useProxy, useSSL bool) {
 	// 議事録に生成するページのアドレスを指定
 	// 上書きはできない筈だが，存在するアドレスには注意すること
 	var num int
@@ -85,11 +85,11 @@ func SendMinutes() {
 		}
 	}
 	executive_list := "http://mozart.if.t.u-tokyo.ac.jp/memswiki/index.php?Executive%20Meeting"
-	if err := memswiki.WriteMinute(num, msg); err != nil {
+	if err := memswiki.WriteMinute(num, msg, useProxy); err != nil {
 		log.Println(err)
 		return
 	}
-	fmt.Printf("\x1b[31m今回作成した記事へのリンクを一覧ページへ追加するのは手動で行ったください．\n%s\x1b[0m\n", executive_list)
+	fmt.Printf("\x1b[31m今回作成した記事へのリンクを一覧ページへ追加するのは手動で行ってください．\n%s\x1b[0m\n", executive_list)
 
 	// 議事録をメールへ送信
 	fmt.Println("メールにも流しますか? [y/N]")
@@ -102,7 +102,10 @@ func SendMinutes() {
 			os.Exit(0)
 		}
 	}
-	lab_mail.SendMinutesMail(meeting_type.Executive, strconv.Itoa(num), msg)
+	if err := lab_mail.SendMinutesMail(meeting_type.Executive, strconv.Itoa(num), msg, useSSL); err != nil {
+		log.Println(err)
+		return
+	}
 
 	return
 }

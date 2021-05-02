@@ -19,37 +19,35 @@ const (
 
 var (
 	cmd      int
-	useProxy bool
 	mtg      int
+	useProxy bool
+	useSSL   bool
 )
 
 // getFlags
 // 本当はこんなもの使いたくないが仕方無く全員ここで取得
-func getFlags() (cmdOptionType, bool, meeting_type.MeetingType, error) {
-	flag.IntVar(&cmd, "cmd", -1, "-1:\t(default, but do not use)\n0:\tminutes template generator\n1:\tminutes sender to wiki and mailer\n2:\tmail reminder")
-	flag.BoolVar(&useProxy, "p", false, "false:\tnot use proxy (default)\ntrue:\tuse proxy")
-	flag.IntVar(&mtg, "mtg", -1, "0: others \t(default, but do not use)\n1: TeamMEMS\n2: Executive")
+func getFlags() (cmdOptionType, meeting_type.MeetingType, bool, bool, error) {
+	flag.IntVar(&cmd, "cmd", -1, "-1:\t(default, but do not use)\n0:\tminutes template generator\n1:\tminutes sender to wiki and mailer\n2:\tmail reminder\n")
+	flag.IntVar(&mtg, "mtg", -1, "0: others \t(default, but do not use)\n1: TeamMEMS\n2: Executive\n(When -cmd 2, you can use)\n")
+	flag.BoolVar(&useProxy, "p", false, "false:\tnot use proxy (default)\ntrue:\tuse proxy\n(When -cmd 0 and 1, you can use)\n")
+	flag.BoolVar(&useSSL, "s", false, "false:\tnot use SSL (default)\ntrue:\tuse SSL and need your mail password in .env\n(When -cmd 1 and 2, you can use)\n")
 	flag.Parse()
 
-	return cmdOptionType(cmd), useProxy, meeting_type.MeetingType(mtg), nil
+	return cmdOptionType(cmd), meeting_type.MeetingType(mtg), useProxy, useSSL, nil
 }
 
 func main() {
-	cmd, userProxy, mtg, err := getFlags()
+	cmd, mtg, useProxy, useSSL, err := getFlags()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	if err != nil {
-		log.Println(err)
-		return
-	}
 	switch cmd {
 	case MinutesTemplateGenerator:
-		lab_cmd.GenerateMinutesTemplate(userProxy)
+		lab_cmd.GenerateMinutesTemplate(useProxy)
 	case MinutesSender:
-		lab_cmd.SendMinutes()
+		lab_cmd.SendMinutes(useProxy, useSSL)
 	case MailReminder:
 		// この場合のみ変なパラメータならば処理を中止
 		if mtg <= meeting_type.Unknown || mtg > meeting_type.Executive {
@@ -59,7 +57,7 @@ func main() {
 			flag.PrintDefaults()
 			return
 		}
-		lab_cmd.SendReminderMail(mtg)
+		lab_cmd.SendReminderMail(mtg, useSSL)
 	default:
 		flag.PrintDefaults()
 		return

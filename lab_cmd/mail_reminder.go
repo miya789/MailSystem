@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func SendReminderMail(mtg meeting_type.MeetingType) {
+func SendReminderMail(mtg meeting_type.MeetingType, useSSL bool) {
 	// Check whether today is holiday
 	now := time.Now()
 	log.Printf("Checking whether today is a holiday or not... (Today: %s)\n", now.Format(schedule.TimeLayout))
@@ -33,7 +33,7 @@ func SendReminderMail(mtg meeting_type.MeetingType) {
 
 	// Send reminder mail
 	log.Printf("Sending reminder mail...\n")
-	if err := lab_mail.SendReminderMail(mtg, ms, mz); err != nil {
+	if err := lab_mail.SendReminderMail(mtg, ms, mz, useSSL); err != nil {
 		log.Println(err)
 		return
 	}

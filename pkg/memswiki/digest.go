@@ -15,12 +15,17 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func digestPost(method, host, uri string, additionalHeaders map[string]string, payload io.Reader) ([]byte, error) {
+func digestPost(method, host, uri string, additionalHeaders map[string]string, payload io.Reader, useProxy bool) ([]byte, error) {
 	fmt.Println()
 	req, err := http.NewRequest(method, host+uri, nil)
 	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{
-		Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)},
+	var client *http.Client
+	if useProxy {
+		client = &http.Client{
+			Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)},
+		}
+	} else {
+		client = &http.Client{}
 	}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -68,7 +73,7 @@ func digestPost(method, host, uri string, additionalHeaders map[string]string, p
 			host := next.Scheme + "://" + next.Host
 			uri := next.Path + "?" + next.RawQuery
 			log.Printf("next location:\nhost:\n\x1b[33m%s\x1b[0m\nuri:\n\x1b[33m%s\x1b[0m\nurl:\n\x1b[33m%s\x1b[0m\n", host, uri, host+uri)
-			redirectRes, err := digestPost(http.MethodGet, host, uri, additionalHeaders, nil)
+			redirectRes, err := digestPost(http.MethodGet, host, uri, additionalHeaders, nil, useProxy)
 			if err != nil {
 				return redirectRes, fmt.Errorf("failed to request: %w", err)
 			}
