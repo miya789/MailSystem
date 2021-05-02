@@ -5,6 +5,7 @@ import (
 	"LabMeeting/pkg/meeting_type"
 	"LabMeeting/pkg/memswiki"
 	"bufio"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -87,7 +88,14 @@ func SendMinutes(useProxy, useSSL bool) {
 	executive_list := "http://mozart.if.t.u-tokyo.ac.jp/memswiki/index.php?Executive%20Meeting"
 	if err := memswiki.WriteMinute(num, msg, useProxy); err != nil {
 		log.Println(err)
-		return
+
+		for errors.Unwrap(err) != nil {
+			err = errors.Unwrap(err)
+		}
+		if _, ok := err.(*memswiki.ErrDocNotFound); !ok {
+			return
+		}
+		fmt.Printf("\x1b[31m既に記事のページが存在します．\n\x1b[0m\n")
 	}
 	fmt.Printf("\x1b[31m今回作成した記事へのリンクを一覧ページへ追加するのは手動で行ってください．\n%s\x1b[0m\n", executive_list)
 
