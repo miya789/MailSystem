@@ -19,13 +19,12 @@ func digestPost(method, host, uri string, additionalHeaders map[string]string, p
 	fmt.Println()
 	req, err := http.NewRequest(method, host+uri, nil)
 	req.Header.Set("Content-Type", "application/json")
-	var client *http.Client
+
+	client := &http.Client{
+		Transport: &http.Transport{},
+	}
 	if useProxy {
-		client = &http.Client{
-			Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)},
-		}
-	} else {
-		client = &http.Client{}
+		client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
 	}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -51,7 +50,6 @@ func digestPost(method, host, uri string, additionalHeaders map[string]string, p
 		req.Header.Set(k, v)
 	}
 	resp, err = client.Transport.RoundTrip(req)
-	// resp, err = client.Do(req)
 	if err != nil {
 		return nil, err
 	}
