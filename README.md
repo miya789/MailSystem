@@ -1,8 +1,8 @@
 # LabMeeting
 
 [![Go](https://img.shields.io/badge/Language-Go-76E1FE?logo=go)](https://github.com/golang/go)
-[![pipeline status](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/badges/master/pipeline.svg)](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/pipelines)
-[![coverage](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/badges/master/coverage.svg)](https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/commits/master)
+[![pipeline status](https://gitlab.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/badges/master/pipeline.svg)](https://gitlab.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/pipelines)
+[![coverage](https://gitlab.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/badges/master/coverage.svg)](https://gitlab.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting/commits/master)
 
 - 研究室のミーティング関係の自動化ツール
 
@@ -43,7 +43,7 @@ config フォルダの中身を管理しているリポジトリである．
 
 (どうしても分からない場合は，本リポジトリの**CI/CD>変数**にも設定してあるので確認)
 
-## 使い方
+## TL;DR
 
 - 必ず `config/.env` を作成すること
 
@@ -59,39 +59,44 @@ config フォルダの中身を管理しているリポジトリである．
   2. [議事録の Wiki ページ作成やメール送信](#2-議事録の-wiki-ページ作成やメール送信)
   3. [ミーティングのメールリマインダー](#3-ミーティングのメールリマインダー)
 
+## 使い方
+
 ### 初期設定の手順
 
-- <details><summary>Git が使えない場合 (詳しくはクリック)</summary>
+#### 1. 環境の用意
+
+- ここでは必要なディレクトリ構造等の環境の用意を行う
+
+- <details><summary>Git を使わない場合 (詳しくはクリック)</summary>
   <div>
 
-  0. 適当なフォルダを作る ( `LabMeeting` フォルダと仮定する)
-  1. バイナリをリリースノートからダウンロードし， `LabMeeting` フォルダに置く
-  2. `config` フォルダと `out` フォルダを作成
-  3. `config` フォルダに `*_mail.csv`,`*_mail_zoom.csv`,`*_calendar.csv` を置く
+  1. 適当なフォルダを作る ( `LabMeeting` フォルダと仮定する)
+  2. バイナリをリリースノートからダウンロードし， `LabMeeting` フォルダに置く
+     - リリースノートは 「プロジェクトの概要 > リリース」 にある
+  3. `LabMeeting` フォルダに `config` フォルダと `out` フォルダを作成
+  4. `config` フォルダに `*_mail.csv`,`*_mail_zoom.csv`,`*_calendar.csv`, `.env` を置く
 
      - 形式が分からない場合は **config リポジトリ** を参考に
-     - config リポジトリからダウンロードしても可
+     - config リポジトリからダウンロードして置いても可
 
-  4. `config` フォルダに `.env` を作り書く
+     - `.env`の書き方の参考例は ![./config/.env.sample](./config/.env.sample)
 
-     - 書き方の参考例は ![./config/.env.sample](./config/.env.sample)
-     - どうしても分からないものは config リポジトリを参考に
+  5. (バイナリのファイル名) の準備
 
-  5. ./(バイナリのファイル名) で実行
-
-     - オプションの使い方はメッセージ等を参考に
-     - Linux 等の場合は実行権限を `chmod 700 (バイナリのファイル名)` で与える
+     - Linux 等の場合は，実行権限を `chmod 700 (バイナリのファイル名)` で与える
+     - Windows の場合は， `(バイナリのファイル名)` を `.exe` で終わる形に変更し，コマンドプロンプト等から実行可能にする
 
   </div></details>
 
-- Git が使える場合
+- <details><summary>Git を使う場合 (詳しくはクリック)</summary>
+  <div>
 
   1. 下記のコマンドで環境を用意
 
      ```bash
      # GitLab版
-     git clone https://gitlab.p.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting.git  # デフォルト
-     git clone git@gitlab.p.if.t.u-tokyo.ac.jp:MitaLab/LabMeeting.git      # GitLabとSSH通信可能な人用
+     git clone https://gitlab.if.t.u-tokyo.ac.jp/MitaLab/LabMeeting.git  # デフォルト
+     git clone git@gitlab.if.t.u-tokyo.ac.jp:MitaLab/LabMeeting.git      # GitLabとSSH通信可能な人用
 
      # GitHub版
      git clone https://github.com/miya789/MailSystem.git # デフォルト
@@ -101,28 +106,40 @@ config フォルダの中身を管理しているリポジトリである．
   2. 下記コマンドで `config` ディレクトリにおいて設定を読み込む
 
      ```bash
-     cd config                                                                            # config ディレクトリに移動
-     git init                                                                             # config ディレクトリを git で別管理
-     git remote add origin git@gitlab.p.if.t.u-tokyo.ac.jp:MitaLab/LabMeeting_config.git  # config ディレクトリが参照する remote を設定
-     git pull origin master                                                               # config ディレクトリを remote に同期
+     cd config                                                                          # config ディレクトリに移動
+     git init                                                                           # config ディレクトリを git で別管理
+     git remote add origin git@gitlab.if.t.u-tokyo.ac.jp:MitaLab/LabMeeting_config.git  # config ディレクトリが参照する remote を設定
+     git pull origin master                                                             # config ディレクトリを remote に同期
      ```
 
-  3. 適宜 `.env` の設定値を変更
+  </div></details>
 
-     - 個人情報を含む為，これを読み込んで実行ファイルは動く
-     - **自分の名前や学年を書く**
-     - 既に `.env.sample` があるのでこれを参考にすること
-     - 主にメールアドレス等の以下項目を変更する
-       - **WIKI_TEMPLATE_MEMBERS**: メンバーが変わるので
-       - **REDMINE_API_KEY**: 自分のを使わなければ卒業して失効した場合に動かない可能性あり
-       - **PROXY_URL**
-       - **ME_NAME_JP**
-       - **ME_NAME_EN**
-       - **ME_GRADE**
-       - **ME_MAIL_ID**
-       - **ME_MAIL_PASS**
+#### 2. 設定ファイルの変更
+
+- 主に名前やメールアドレス等の以下項目を変更する
+- 既に `.env.sample` があるのでこれを参考にすること
+- 個人情報を含む為，これを読み込んで実行ファイルは動く
+
+  - 因みに GitLab の Pipeline はこれではなく，環境変数を優先して参照する
+
+  | 種類                   | 変数名                | 用途                                                                                                            |
+  | ---------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------- |
+  | **ミーティングの設定** | WIKI_TEMPLATE_MEMBERS | Wiki のテンプレに書く全メンバー (メンバーが変わる度に変更)                                                      |
+  | **ミーティングの設定** | REDMINE_API_KEY       | READMINE にアクセスする為の API トークン (API トークンの持ち主が卒業する度に変更，失効すると動かない可能性あり) |
+  | **個人の設定**         | ME_EMAIL              | 使用するユーザーのメールアドレス                                                                                |
+  | **個人の設定**         | ME_NAME_JP            | 使用するユーザーの名前の日本語表記 e.g.) "宮澤"                                                                 |
+  | **個人の設定**         | ME_NAME_EN            | 使用するユーザーの名前の英語表記 e.g.) "Miyazawa"                                                               |
+  | **個人の設定**         | ME_GRADE              | 使用するユーザーの学年                                                                                          |
+  | 追加の設定(Proxy)      | PROXY_URL             | プロキシ越しでアクセス                                                                                          |
+  | 追加の設定(SSL)        | ME_MAIL_ID            | メールで SSL を使用                                                                                             |
+  | 追加の設定(SSL)        | ME_MAIL_PASS          | メールで SSL を使用                                                                                             |
+
+  </div></details>
 
 ### 普段の使い方
+
+- オプションの使い方は，何も指定せずに実行して表示されるメッセージ等を参考に
+- Windows の場合は，コマンドプロンプト等から実行可能
 
 #### 1. 議事録テンプレートの生成
 
@@ -199,30 +216,30 @@ config フォルダの中身を管理しているリポジトリである．
 
 - こうすることで，config リポジトリの内容に従い，後は勝手に GitLab の `schedules` ステージの Pipeline が勝手にやってくれる
 
-  - 尚，送信に失敗した場合は GitLab の `schedules` ステージの Pipeline を確認すること
+  - 尚，送信に失敗した場合は GitLab の `schedules` ステージの Pipeline を確認し，最悪の場合は自分でメールを書いて送信して対処
 
-    - その際は自分でメールを書いて送信して対処
-
-  - 設定を変える場合は， **CI/CD>変数** を変える
+  - 設定を変える場合は， **CI/CD>変数** を変更
 
     - GitLab の Pipeline の場合は設定された環境変数が優先されるので基本的に使わない
     - `MAIL_REMINDER_ACCESS_TOKEN` は `GitLab-Runner` アカウントのアクセストークンである
       - これを用いて config リポジトリを clone しているので，**間違って削除しないように注意すること**
 
-  - 普段は使わないが，以下コマンドで呼び出し可能
+- 普段は使わないが，以下コマンドで呼び出し可能
 
-    ```bash
-    # go をインストールしている場合
-    go run main.go -cmd 2 -mtg (1もしくは2)
+  ```bash
+  # go をインストールしている場合
+  go run main.go -cmd 2 -mtg (1もしくは2)
 
-    # go をインストールしていない場合(恐らくその場合は使わない)
-    ./(バイナリファイル名) -cmd 2 -mtg (1もしくは2)
-    ```
+  # go をインストールしていない場合(恐らくその場合は使わない)
+  ./(バイナリファイル名) -cmd 2 -mtg (1もしくは2)
+  ```
 
 ### 引継ぎの方法
 
-- そんなものはない
+- (そんなものはない)
 - ミーティングの予定を決まった形式で， config リポジトリ( **remote** )に `commit` さえおけば問題無い筈……
+- **config リポジトリ** 内の`.env`の変更は忘れずに
+  - 特に `REDMINE_API_KEY`
 
 ## 参考資料
 
@@ -274,6 +291,6 @@ config フォルダの中身を管理しているリポジトリである．
         └── weekday_test.go
 ```
 
-### 主な流れ
+### 各パッケージ(pkg)呼び出しの主な流れ
 
 ![[Flowchart diagram](doc/img/diagram.png)](doc/img/diagram.png)
